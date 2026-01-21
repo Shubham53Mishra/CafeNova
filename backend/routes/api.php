@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\VendorAuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,6 +16,7 @@ use App\Http\Controllers\AuthController;
 |
 */
 
+// ==================== USER ROUTES ====================
 // Public Routes
 Route::post('/signup', [AuthController::class, 'signup']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -24,4 +26,19 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
 });
+
+// ==================== VENDOR ROUTES ====================
+// Public Routes
+Route::prefix('vendor')->group(function () {
+    Route::post('/signup', [VendorAuthController::class, 'signup']);
+    Route::post('/login', [VendorAuthController::class, 'login']);
+    
+    // Protected Routes
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/profile', [VendorAuthController::class, 'getProfile']);
+        Route::put('/profile', [VendorAuthController::class, 'updateProfile']);
+        Route::post('/logout', [VendorAuthController::class, 'logout']);
+    });
+});
+
 
