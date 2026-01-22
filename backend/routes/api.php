@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\VendorAuthController;
+use App\Http\Controllers\CafeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,6 +39,13 @@ Route::prefix('vendor')->group(function () {
         Route::get('/profile', [VendorAuthController::class, 'getProfile']);
         Route::put('/profile', [VendorAuthController::class, 'updateProfile']);
         Route::post('/logout', [VendorAuthController::class, 'logout']);
+
+        // ==================== CAFE ROUTES ====================
+        Route::post('/cafe/register', [CafeController::class, 'registerCafe']);
+        Route::get('/cafes', [CafeController::class, 'getCafes']);
+        Route::get('/cafe/{cafeId}', [CafeController::class, 'getCafe']);
+        Route::put('/cafe/{cafeId}', [CafeController::class, 'updateCafe']);
+        Route::delete('/cafe/{cafeId}', [CafeController::class, 'deleteCafe']);
     });
 });
 
