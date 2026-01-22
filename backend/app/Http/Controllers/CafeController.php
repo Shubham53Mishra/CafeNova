@@ -20,6 +20,8 @@ class CafeController extends Controller
             'city' => 'nullable|string',
             'state' => 'nullable|string',
             'pincode' => 'nullable|digits:6',
+            'latitude' => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
         ]);
 
         if ($validator->fails()) {
@@ -39,6 +41,8 @@ class CafeController extends Controller
                 'city' => $request->city,
                 'state' => $request->state,
                 'pincode' => $request->pincode,
+                'latitude' => $request->latitude,
+                'longitude' => $request->longitude,
             ]);
 
             return response()->json([
@@ -114,6 +118,8 @@ class CafeController extends Controller
             'city' => 'nullable|string',
             'state' => 'nullable|string',
             'pincode' => 'nullable|digits:6',
+            'latitude' => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
         ]);
 
         if ($validator->fails()) {
@@ -135,7 +141,9 @@ class CafeController extends Controller
                 'address',
                 'city',
                 'state',
-                'pincode'
+                'pincode',
+                'latitude',
+                'longitude'
             ]));
 
             return response()->json([
