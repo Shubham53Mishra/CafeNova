@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\VendorAuthController;
 use App\Http\Controllers\CafeController;
+use App\Http\Controllers\ItemController;
+use App\Http\Controllers\SubitemController;
 
 /*
 |--------------------------------------------------------------------------
@@ -46,6 +48,20 @@ Route::prefix('vendor')->group(function () {
         Route::get('/cafe/{cafeId}', [CafeController::class, 'getCafe']);
         Route::put('/cafe/{cafeId}', [CafeController::class, 'updateCafe']);
         Route::delete('/cafe/{cafeId}', [CafeController::class, 'deleteCafe']);
+
+        // ==================== ITEM ROUTES ====================
+        Route::post('/cafe/{cafeId}/item/add', [ItemController::class, 'addItem']);
+        Route::get('/cafe/{cafeId}/items', [ItemController::class, 'getItems']);
+        Route::get('/cafe/{cafeId}/item/{itemId}', [ItemController::class, 'getItem']);
+        Route::put('/cafe/{cafeId}/item/{itemId}', [ItemController::class, 'updateItem']);
+        Route::delete('/cafe/{cafeId}/item/{itemId}', [ItemController::class, 'deleteItem']);
+
+        // ==================== SUBITEM ROUTES ====================
+        Route::post('/cafe/{cafeId}/item/{itemId}/subitem/add', [SubitemController::class, 'addSubitem']);
+        Route::get('/cafe/{cafeId}/item/{itemId}/subitems', [SubitemController::class, 'getSubitems']);
+        Route::get('/cafe/{cafeId}/item/{itemId}/subitem/{subitemId}', [SubitemController::class, 'getSubitem']);
+        Route::put('/cafe/{cafeId}/item/{itemId}/subitem/{subitemId}', [SubitemController::class, 'updateSubitem']);
+        Route::delete('/cafe/{cafeId}/item/{itemId}/subitem/{subitemId}', [SubitemController::class, 'deleteSubitem']);
     });
 });
 
