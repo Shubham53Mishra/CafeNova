@@ -48,12 +48,13 @@ RUN composer install --no-dev --optimize-autoloader
 # Create necessary directories
 RUN mkdir -p storage/logs && chmod -R 777 storage bootstrap/cache
 
-# Copy build script
+# Copy build script and start script
 COPY build.sh /usr/local/bin/build.sh
-RUN chmod +x /usr/local/bin/build.sh
+COPY start.sh /usr/local/bin/start.sh
+RUN chmod +x /usr/local/bin/build.sh /usr/local/bin/start.sh
 
 # Expose port 80
 EXPOSE 80
 
-# Run supervisord to manage PHP-FPM and Nginx
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+# Run start.sh which runs migrations and then supervisord
+CMD ["/usr/local/bin/start.sh"]
