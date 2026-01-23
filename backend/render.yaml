@@ -1,0 +1,38 @@
+services:
+  - type: web
+    name: laravel-api
+    env: docker
+    region: oregon
+    plan: free
+    healthCheckPath: /
+    buildCommand: ""
+    startCommand: ""
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_KEY
+        scope: run_and_build
+        sync: false
+      - key: DB_CONNECTION
+        value: mysql
+      - key: DB_HOST
+        value: ${{mysql.HOSTNAME}}
+      - key: DB_PORT
+        value: "3306"
+      - key: DB_DATABASE
+        value: laravel
+      - key: DB_USERNAME
+        value: laravel
+      - key: DB_PASSWORD
+        scope: run_and_build
+        sync: false
+
+  - type: mysql
+    name: mysql
+    plan: free
+    region: oregon
+    databaseName: laravel
+    databaseUsername: laravel
+    databaseInitialRootPassword: ${{MYSQL_ROOT_PASSWORD}}
