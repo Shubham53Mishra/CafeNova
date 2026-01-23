@@ -5,8 +5,8 @@ services:
     region: oregon
     plan: free
     healthCheckPath: /
-    buildCommand: ""
-    startCommand: ""
+    buildCommand: "composer install && php artisan config:cache && php artisan migrate --force"
+    startCommand: "gunicorn wsgi:app"
     envVars:
       - key: APP_ENV
         value: production
@@ -16,23 +16,21 @@ services:
         scope: run_and_build
         sync: false
       - key: DB_CONNECTION
-        value: mysql
+        value: pgsql
       - key: DB_HOST
-        value: ${{mysql.HOSTNAME}}
+        value: dpg-d5pn013uibrs73d4gcf0-a.oregon-postgres.render.com
+        scope: run_and_build
+        sync: false
       - key: DB_PORT
-        value: "3306"
+        value: "5432"
       - key: DB_DATABASE
-        value: laravel
+        value: laravel_n2m1
+        scope: run_and_build
+        sync: false
       - key: DB_USERNAME
         value: laravel
+        scope: run_and_build
+        sync: false
       - key: DB_PASSWORD
         scope: run_and_build
         sync: false
-
-  - type: mysql
-    name: mysql
-    plan: free
-    region: oregon
-    databaseName: laravel
-    databaseUsername: laravel
-    databaseInitialRootPassword: ${{MYSQL_ROOT_PASSWORD}}
