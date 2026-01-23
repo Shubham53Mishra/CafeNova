@@ -34,7 +34,7 @@ COPY --chown=www-data:www-data . /var/www
 RUN mkdir -p /etc/supervisor/conf.d
 
 # Copy Nginx configuration
-COPY docker/nginx/conf.d/app.conf /etc/nginx/sites-available/default
+COPY ./docker/nginx/conf.d/app.conf /etc/nginx/sites-available/default
 RUN ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 
 # Create supervisord configuration
