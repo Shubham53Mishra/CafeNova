@@ -1,15 +1,52 @@
 import React, { useState } from 'react';
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react';
 import Navbar from '../../components/Navbar';
+
+const API_URL = 'https://cafenova.onrender.com';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    console.log('Login attempt:', { email, password });
+    setLoading(true);
+    setError('');
+    setSuccess('');
+
+    try {
+      const response = await fetch(`${API_URL}/api/vendors/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setSuccess('Login successful! Redirecting...');
+        // Store token if provided
+        if (data.token) {
+          localStorage.setItem('vendorToken', data.token);
+        }
+        setTimeout(() => {
+          window.location.href = '/vendors';
+        }, 1500);
+      } else {
+        setError(data.message || 'Login failed. Please check your credentials.');
+      }
+    } catch (err) {
+      setError('Server error: ' + err.message);
+      console.error('Login error:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -21,6 +58,20 @@ const Login = () => {
           <h2 className="text-3xl font-bold text-green-700 text-center mb-8">
             Welcome Back
           </h2>
+
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700">
+              <AlertCircle size={18} />
+              {error}
+            </div>
+          )}
+
+          {success && (
+            <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2 text-green-700">
+              <CheckCircle size={18} />
+              {success}
+            </div>
+          )}
 
           <form onSubmit={handleLogin} className="space-y-6">
             {/* Email Field */}
@@ -83,9 +134,10 @@ const Login = () => {
             {/* Login Button */}
             <button
               type="submit"
-              className="w-full bg-green-700 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-800 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2"
+              disabled={loading}
+              className="w-full bg-green-700 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-800 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Log In
+              {loading ? 'Logging in...' : 'Log In'}
             </button>
           </form>
 

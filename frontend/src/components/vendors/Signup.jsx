@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { Mail, Lock, User, Eye, EyeOff, Phone } from 'lucide-react';
+import { Mail, Lock, User, Eye, EyeOff, Phone, AlertCircle, CheckCircle } from 'lucide-react';
 import Navbar from '../../components/Navbar';
+
+const API_URL = 'https://cafenova.onrender.com';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -12,17 +14,68 @@ const Signup = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
+    setError('');
   };
 
-  const handleSignup = (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
-    console.log('Signup attempt:', formData);
+    setLoading(true);
+    setError('');
+    setSuccess('');
+
+    // Validation
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/api/vendors/signup`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone,
+          password: formData.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setSuccess('Signup successful! Redirecting to login...');
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          password: '',
+          confirmPassword: ''
+        });
+        setTimeout(() => {
+          window.location.href = '/vendors/login';
+        }, 1500);
+      } else {
+        setError(data.message || 'Signup failed. Please try again.');
+      }
+    } catch (err) {
+      setError('Server error: ' + err.message);
+      console.error('Signup error:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -34,6 +87,20 @@ const Signup = () => {
           <h2 className="text-3xl font-bold text-green-700 text-center mb-8">
             Create Account
           </h2>
+
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700">
+              <AlertCircle size={18} />
+              {error}
+            </div>
+          )}
+
+          {success && (
+            <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2 text-green-700">
+              <CheckCircle size={18} />
+              {success}
+            </div>
+          )}
 
           <form onSubmit={handleSignup} className="space-y-5">
             {/* Name Field */}
@@ -160,9 +227,10 @@ const Signup = () => {
             {/* Signup Button */}
             <button
               type="submit"
-              className="w-full bg-green-700 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-800 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2"
+              disabled={loading}
+              className="w-full bg-green-700 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-800 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Sign Up
+              {loading ? 'Creating Account...' : 'Sign Up'}
             </button>
           </form>
 
