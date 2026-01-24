@@ -46,6 +46,7 @@ const Signup = () => {
         email: formData.email,
         phone: formData.phone,
         password: formData.password,
+        confirmPassword: formData.confirmPassword,
       });
 
       const response = await fetch(`${API_URL}/api/vendor/signup`, {
@@ -59,6 +60,7 @@ const Signup = () => {
           email: formData.email,
           phone: formData.phone,
           password: formData.password,
+          confirmPassword: formData.confirmPassword,
         }),
       });
 
