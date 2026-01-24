@@ -19,7 +19,7 @@ const Login = () => {
     setSuccess('');
 
     try {
-      const response = await fetch(`${API_URL}/api/vendors/login`, {
+      const response = await fetch(`${API_URL}/api/vendor/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
