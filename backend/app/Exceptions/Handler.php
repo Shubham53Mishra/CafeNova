@@ -3,6 +3,8 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -46,5 +48,40 @@ class Handler extends ExceptionHandler
         $this->reportable(function (Throwable $e) {
             //
         });
+    }
+
+    /**
+     * Render an exception into an HTTP response.
+     */
+    public function render($request, Throwable $exception)
+    {
+        // Handle validation exceptions for API requests
+        if ($exception instanceof ValidationException && $request->expectsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $exception->errors(),
+            ], 422);
+        }
+
+        // Return JSON for all API errors
+        if ($request->expectsJson()) {
+            $statusCode = 500;
+            
+            // Try to get HTTP status code from exception
+            if (property_exists($exception, 'status')) {
+                $statusCode = $exception->status;
+            } elseif (property_exists($exception, 'code') && is_numeric($exception->code) && $exception->code >= 100 && $exception->code < 600) {
+                $statusCode = $exception->code;
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred',
+                'error' => $exception->getMessage(),
+            ], $statusCode);
+        }
+
+        return parent::render($request, $exception);
     }
 }
