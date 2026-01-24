@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Vendor;
+use App\Http\Requests\VendorSignupRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -12,29 +13,8 @@ class VendorAuthController extends Controller
     /**
      * Vendor Signup
      */
-    public function signup(Request $request)
+    public function signup(VendorSignupRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'shop_name' => 'required|string|max:255|unique:vendors,shop_name',
-            'owner_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:vendors,email',
-            'mobile' => 'required|digits:10|unique:vendors,mobile',
-            'password' => 'required|string|min:8|confirmed',
-            'address' => 'nullable|string',
-            'city' => 'nullable|string',
-            'state' => 'nullable|string',
-            'pincode' => 'nullable|digits:6',
-            'shop_type' => 'nullable|string',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation Error',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
         try {
             $vendor = Vendor::create([
                 'shop_name' => $request->shop_name,
