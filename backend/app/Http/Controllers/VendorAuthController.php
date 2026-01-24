@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Vendor;
 use App\Http\Requests\VendorSignupRequest;
+use App\Http\Requests\VendorLoginRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -47,30 +48,22 @@ class VendorAuthController extends Controller
     }
 
     /**
-     * Vendor Login
+     * Vendor Login - Using Email OR Mobile Number
      */
-    public function login(Request $request)
+    public function login(VendorLoginRequest $request)
     {
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|email',
-            'password' => 'required|string|min:8',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation Error',
-                'errors' => $validator->errors()
-            ], 422);
-        }
-
         try {
-            $vendor = Vendor::where('email', $request->email)->first();
+            $emailOrMobile = $request->email_or_mobile;
+            
+            // Check if input is email or mobile number
+            $vendor = Vendor::where('email', $emailOrMobile)
+                ->orWhere('mobile', $emailOrMobile)
+                ->first();
 
             if (!$vendor || !Hash::check($request->password, $vendor->password)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Invalid email or password'
+                    'message' => 'Invalid credentials'
                 ], 401);
             }
 
