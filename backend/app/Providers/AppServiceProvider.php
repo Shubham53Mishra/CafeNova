@@ -24,8 +24,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        // Force HTTPS in production (Render environment)
-        if ($this->app->environment('production')) {
+        // Force HTTPS on Render and other production environments with reverse proxies
+        if ($this->app->environment() !== 'local') {
             URL::forceScheme('https');
         }
     }
