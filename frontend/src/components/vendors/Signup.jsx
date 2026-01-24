@@ -32,7 +32,37 @@ const Signup = () => {
     setError('');
     setSuccess('');
 
-    // Validation
+    // Validation - Check if all fields are filled
+    if (!formData.name.trim()) {
+      setError('Full name is required');
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.email.trim()) {
+      setError('Email is required');
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.phone.trim()) {
+      setError('Phone number is required');
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.password) {
+      setError('Password is required');
+      setLoading(false);
+      return;
+    }
+
+    if (!formData.confirmPassword) {
+      setError('Confirm password is required');
+      setLoading(false);
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       setLoading(false);
@@ -252,6 +282,7 @@ const Signup = () => {
                   onChange={handleChange}
                   placeholder="Confirm password"
                   className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent"
+                  required
                   autoComplete="off"
                 />
                 <button
