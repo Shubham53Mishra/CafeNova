@@ -22,16 +22,11 @@ class VendorSignupRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'shop_name' => 'required|string|max:255|unique:vendors,shop_name',
-            'owner_name' => 'required|string|max:255', // Full Name
+            'name' => 'required|string|max:255',
             'email' => 'required|email|unique:vendors,email', // Email Address
-            'mobile' => 'required|digits:10|unique:vendors,mobile', // Phone Number
-            'password' => 'required|string|min:8|confirmed', // Password with Confirm Password
-            'address' => 'nullable|string',
-            'city' => 'nullable|string',
-            'state' => 'nullable|string',
-            'pincode' => 'nullable|digits:6',
-            'shop_type' => 'nullable|string',
+            'phone' => 'required|digits:10|unique:vendors,mobile', // Phone Number
+            'password' => 'required|string|min:8|confirmed:confirmPassword', // Password with Confirm Password
+            'confirmPassword' => 'required|string|min:8',
         ];
     }
 
@@ -41,12 +36,12 @@ class VendorSignupRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'owner_name.required' => 'Full Name is required',
+            'name.required' => 'Name is required',
             'email.required' => 'Email Address is required',
-            'mobile.required' => 'Phone Number is required',
+            'phone.required' => 'Phone Number is required',
             'password.required' => 'Password is required',
             'password.confirmed' => 'Password and Confirm Password must match',
-            'mobile.digits' => 'Phone Number must be 10 digits',
+            'phone.digits' => 'Phone Number must be 10 digits',
         ];
     }
 }

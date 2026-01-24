@@ -18,16 +18,11 @@ class VendorAuthController extends Controller
     {
         try {
             $vendor = Vendor::create([
-                'shop_name' => $request->shop_name,
-                'owner_name' => $request->owner_name,
+                'shop_name' => $request->name,
+                'owner_name' => $request->name,
                 'email' => $request->email,
-                'mobile' => $request->mobile,
+                'mobile' => $request->phone,
                 'password' => Hash::make($request->password),
-                'address' => $request->address,
-                'city' => $request->city,
-                'state' => $request->state,
-                'pincode' => $request->pincode,
-                'shop_type' => $request->shop_type,
             ]);
 
             $token = $vendor->createToken('vendorToken')->plainTextToken;
