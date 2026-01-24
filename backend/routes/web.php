@@ -14,5 +14,9 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return response()->json([
+        'message' => 'CafeNova API Server',
+        'status' => 'running',
+        'version' => '1.0.0'
+    ]);
 });
