@@ -251,6 +251,7 @@ const Signup = () => {
                   placeholder="Confirm password"
                   className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent"
                   required
+                  autoComplete="off"
                 />
                 <button
                   type="button"
