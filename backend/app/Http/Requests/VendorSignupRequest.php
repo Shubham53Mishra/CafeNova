@@ -36,7 +36,12 @@ class VendorSignupRequest extends FormRequest
     public function withValidator($validator)
     {
         $validator->after(function ($validator) {
-            if ($this->password !== $this->confirmPassword) {
+            // Get password and confirmPassword from request
+            $password = $this->input('password');
+            $confirmPassword = $this->input('confirmPassword');
+            
+            // Check if passwords match
+            if ($password && $confirmPassword && $password !== $confirmPassword) {
                 $validator->errors()->add('password', 'Password and Confirm Password must match');
             }
         });
