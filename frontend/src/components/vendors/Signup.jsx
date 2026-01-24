@@ -40,11 +40,21 @@ const Signup = () => {
     }
 
     try {
+      console.log('Sending signup request to:', `${API_URL}/api/vendor/signup`);
+      console.log('Request data:', {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        password: formData.password,
+      });
+
       const response = await fetch(`${API_URL}/api/vendor/signup`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           name: formData.name,
           email: formData.email,
@@ -53,17 +63,34 @@ const Signup = () => {
         }),
       });
 
+      console.log('Response status:', response.status);
+      console.log('Response headers:', {
+        contentType: response.headers.get('content-type'),
+        contentLength: response.headers.get('content-length'),
+      });
+
       let data;
       const contentType = response.headers.get('content-type');
+      const responseText = await response.text();
       
+      console.log('Response text:', responseText.substring(0, 500));
+
       // Check if response is actually JSON
       if (contentType && contentType.includes('application/json')) {
-        data = await response.json();
+        try {
+          data = JSON.parse(responseText);
+        } catch (e) {
+          console.error('Failed to parse JSON:', e);
+          setError('Server error: Invalid JSON response. Please check backend.');
+          setLoading(false);
+          return;
+        }
       } else {
-        // If not JSON, get text and create error response
-        const text = await response.text();
-        console.error('Non-JSON response:', text);
-        setError('Server error: Invalid response format. Please contact support.');
+        // If not JSON, show detailed error
+        console.error('Non-JSON response received. Status:', response.status);
+        console.error('Content-Type:', contentType);
+        console.error('Response preview:', responseText.substring(0, 200));
+        setError('Backend error: API endpoint not found or not responding properly. Check console for details.');
         setLoading(false);
         return;
       }
