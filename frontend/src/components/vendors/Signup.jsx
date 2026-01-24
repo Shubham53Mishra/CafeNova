@@ -53,7 +53,20 @@ const Signup = () => {
         }),
       });
 
-      const data = await response.json();
+      let data;
+      const contentType = response.headers.get('content-type');
+      
+      // Check if response is actually JSON
+      if (contentType && contentType.includes('application/json')) {
+        data = await response.json();
+      } else {
+        // If not JSON, get text and create error response
+        const text = await response.text();
+        console.error('Non-JSON response:', text);
+        setError('Server error: Invalid response format. Please contact support.');
+        setLoading(false);
+        return;
+      }
 
       if (response.ok) {
         setSuccess('Signup successful! Redirecting to login...');
