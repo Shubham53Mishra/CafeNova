@@ -1,0 +1,7 @@
+{
+  "name": "Test Shop",
+  "email": "testshop123@example.com",
+  "phone": "5544332211",
+  "password": "SecurePass123",
+  "confirmPassword": "SecurePass123"
+}

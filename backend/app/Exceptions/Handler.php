@@ -61,7 +61,9 @@ class Handler extends ExceptionHandler
                 'success' => false,
                 'message' => 'Validation error',
                 'errors' => $exception->errors(),
-            ], 422);
+            ], 422)->header('Access-Control-Allow-Origin', '*')
+               ->header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
+               ->header('Access-Control-Allow-Headers', 'Content-Type, Accept');
         }
 
         // Return JSON for all API errors
@@ -79,7 +81,9 @@ class Handler extends ExceptionHandler
                 'success' => false,
                 'message' => 'An error occurred',
                 'error' => $exception->getMessage(),
-            ], $statusCode);
+            ], $statusCode)->header('Access-Control-Allow-Origin', '*')
+                           ->header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
+                           ->header('Access-Control-Allow-Headers', 'Content-Type, Accept');
         }
 
         return parent::render($request, $exception);
