@@ -39,7 +39,18 @@ const Login = () => {
           window.location.href = '/vendors';
         }, 1500);
       } else {
-        setError(data.message || 'Login failed. Please check your credentials.');
+        // Show detailed error message from backend
+        console.log('Backend response:', data);
+        let errorMsg = '';
+        
+        // Handle Laravel validation errors
+        if (data.errors && typeof data.errors === 'object') {
+          errorMsg = Object.values(data.errors).flat().join(', ');
+        } else {
+          errorMsg = data.message || data.error || JSON.stringify(data);
+        }
+        
+        setError(errorMsg || 'Login failed. Please check your credentials.');
       }
     } catch (err) {
       setError('Server error: ' + err.message);

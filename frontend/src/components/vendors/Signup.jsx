@@ -68,7 +68,18 @@ const Signup = () => {
           window.location.href = '/vendors/login';
         }, 1500);
       } else {
-        setError(data.message || 'Signup failed. Please try again.');
+        // Show detailed error message from backend
+        console.log('Backend response:', data);
+        let errorMsg = '';
+        
+        // Handle Laravel validation errors
+        if (data.errors && typeof data.errors === 'object') {
+          errorMsg = Object.values(data.errors).flat().join(', ');
+        } else {
+          errorMsg = data.message || data.error || JSON.stringify(data);
+        }
+        
+        setError(errorMsg || 'Signup failed. Please try again.');
       }
     } catch (err) {
       setError('Server error: ' + err.message);
