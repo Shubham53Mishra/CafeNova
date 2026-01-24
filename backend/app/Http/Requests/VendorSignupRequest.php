@@ -23,11 +23,23 @@ class VendorSignupRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:vendors,email', // Email Address
-            'phone' => 'required|digits:10|unique:vendors,mobile', // Phone Number
-            'password' => 'required|string|min:8|confirmed:confirmPassword', // Password with Confirm Password
+            'email' => 'required|email|unique:vendors,email',
+            'phone' => 'required|digits:10|unique:vendors,mobile',
+            'password' => 'required|string|min:8',
             'confirmPassword' => 'required|string|min:8',
         ];
+    }
+
+    /**
+     * Configure the validator instance.
+     */
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+            if ($this->password !== $this->confirmPassword) {
+                $validator->errors()->add('password', 'Password and Confirm Password must match');
+            }
+        });
     }
 
     /**
@@ -40,7 +52,6 @@ class VendorSignupRequest extends FormRequest
             'email.required' => 'Email Address is required',
             'phone.required' => 'Phone Number is required',
             'password.required' => 'Password is required',
-            'password.confirmed' => 'Password and Confirm Password must match',
             'phone.digits' => 'Phone Number must be 10 digits',
         ];
     }
