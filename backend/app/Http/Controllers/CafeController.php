@@ -228,7 +228,7 @@ class CafeController extends Controller
             }
 
             $mimes = ['jpeg', 'png', 'jpg', 'gif'];
-            if (!in_array($image->getClientOriginalExtension(), $mimes)) {
+            if (!in_array(strtolower($image->getClientOriginalExtension()), $mimes)) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Validation Error',
