@@ -7,6 +7,7 @@ use App\Models\CafeImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class CafeController extends Controller
 {
@@ -239,7 +240,7 @@ class CafeController extends Controller
                         $uploadedCount++;
                         
                     } catch (\Exception $imageError) {
-                        \Log::error('Image upload error: ' . $imageError->getMessage());
+                        Log::error('Image upload error: ' . $imageError->getMessage());
                         continue; // Skip this image and continue with next
                     }
                 }
@@ -269,7 +270,7 @@ class CafeController extends Controller
                 'error' => 'Cafe with ID ' . $cafeId . ' does not exist'
             ], 404);
         } catch (\Exception $e) {
-            \Log::error('Upload cafe images error: ' . $e->getMessage() . ' at ' . $e->getFile() . ':' . $e->getLine());
+            Log::error('Upload cafe images error: ' . $e->getMessage() . ' at ' . $e->getFile() . ':' . $e->getLine());
             
             return response()->json([
                 'success' => false,
@@ -312,3 +313,4 @@ class CafeController extends Controller
             ], 500);
         }
     }
+}
