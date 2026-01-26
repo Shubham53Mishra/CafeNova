@@ -253,6 +253,7 @@ class CafeController extends Controller
 
             $uploadedCount = 0;
             $uploadedImages = [];
+            $imageIndex = 0;
 
             foreach ($images as $image) {
                 try {
@@ -265,14 +266,18 @@ class CafeController extends Controller
                     
                     $imageUrl = url('storage/' . $imagePath);
                     
+                    // First image is primary, rest are secondary
+                    $isPrimary = ($imageIndex === 0) ? true : false;
+                    
                     $cafeImage = CafeImage::create([
                         'cafe_id' => $cafe->id,
                         'image_path' => $imagePath,
                         'image_url' => $imageUrl,
-                        'is_primary' => false,
+                        'is_primary' => $isPrimary,
                     ]);
                     
                     $uploadedImages[] = $cafeImage;
+                    $imageIndex++;
                     $uploadedCount++;
                     
                 } catch (\Exception $imageError) {
