@@ -206,39 +206,76 @@ class CafeController extends Controller
         }
 
         try {
+            // Check if cafe exists
             $cafe = Cafe::where('vendor_id', $request->user()->id)
                 ->where('id', $cafeId)
                 ->firstOrFail();
+
+            $uploadedCount = 0;
+            $uploadedImages = [];
 
             if ($request->hasFile('images')) {
                 $images = $request->file('images');
                 
                 foreach ($images as $image) {
-                    // Store image in public/cafe_images directory
-                    $imagePath = $image->store('cafe_images', 'public');
-                    $imageUrl = url('storage/' . $imagePath);
-                    
-                    CafeImage::create([
-                        'cafe_id' => $cafe->id,
-                        'image_path' => $imagePath,
-                        'image_url' => $imageUrl,
-                        'is_primary' => false,
-                    ]);
+                    try {
+                        // Store image in public/cafe_images directory
+                        $imagePath = $image->store('cafe_images', 'public');
+                        
+                        if (!$imagePath) {
+                            throw new \Exception('Failed to store image: ' . $image->getClientOriginalName());
+                        }
+                        
+                        $imageUrl = url('storage/' . $imagePath);
+                        
+                        $cafeImage = CafeImage::create([
+                            'cafe_id' => $cafe->id,
+                            'image_path' => $imagePath,
+                            'image_url' => $imageUrl,
+                            'is_primary' => false,
+                        ]);
+                        
+                        $uploadedImages[] = $cafeImage;
+                        $uploadedCount++;
+                        
+                    } catch (\Exception $imageError) {
+                        \Log::error('Image upload error: ' . $imageError->getMessage());
+                        continue; // Skip this image and continue with next
+                    }
                 }
+            }
+
+            if ($uploadedCount === 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Failed to upload any images. Check server logs.',
+                    'error' => 'No images were successfully uploaded'
+                ], 500);
             }
 
             $cafe->load('images');
 
             return response()->json([
                 'success' => true,
-                'message' => 'Images uploaded successfully',
-                'cafe' => $cafe
+                'message' => 'Images uploaded successfully (' . $uploadedCount . ' files)',
+                'cafe' => $cafe,
+                'uploaded_count' => $uploadedCount
             ], 200);
 
-        } catch (\Exception $e) {
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error: ' . $e->getMessage()
+                'message' => 'Cafe not found',
+                'error' => 'Cafe with ID ' . $cafeId . ' does not exist'
+            ], 404);
+        } catch (\Exception $e) {
+            \Log::error('Upload cafe images error: ' . $e->getMessage() . ' at ' . $e->getFile() . ':' . $e->getLine());
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Error uploading images',
+                'error' => app('env') === 'local' ? $e->getMessage() : 'Internal server error',
+                'debug_file' => app('env') === 'local' ? $e->getFile() . ':' . $e->getLine() : null
             ], 500);
         }
     }
