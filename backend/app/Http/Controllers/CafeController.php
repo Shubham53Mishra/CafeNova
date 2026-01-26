@@ -20,8 +20,8 @@ class CafeController extends Controller
             'city' => 'nullable|string',
             'state' => 'nullable|string',
             'pincode' => 'nullable|digits:6',
-            'latitude' => 'nullable|numeric|between:-90,90',
-            'longitude' => 'nullable|numeric|between:-180,180',
+            'latitude' => 'required|numeric|between:-90,90',
+            'longitude' => 'required|numeric|between:-180,180',
         ]);
 
         if ($validator->fails()) {
