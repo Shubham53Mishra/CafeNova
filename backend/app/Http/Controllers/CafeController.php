@@ -193,17 +193,56 @@ class CafeController extends Controller
      */
     public function uploadCafeImages(Request $request, $cafeId)
     {
-        $validator = Validator::make($request->all(), [
-            'images' => 'required|array|min:1',
-            'images.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
-
-        if ($validator->fails()) {
+        // Handle both single file and multiple files
+        $images = $request->file('images');
+        
+        if (!$images) {
             return response()->json([
                 'success' => false,
                 'message' => 'Validation Error',
-                'errors' => $validator->errors()
+                'errors' => ['images' => ['The images field is required']]
             ], 422);
+        }
+
+        // Convert single file to array for uniform handling
+        if (!is_array($images)) {
+            $images = [$images];
+        }
+
+        if (empty($images)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation Error',
+                'errors' => ['images' => ['At least one image is required']]
+            ], 422);
+        }
+
+        // Validate each image
+        foreach ($images as $image) {
+            if (!$image->isValid()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation Error',
+                    'errors' => ['images' => ['One or more files are invalid']]
+                ], 422);
+            }
+
+            $mimes = ['jpeg', 'png', 'jpg', 'gif'];
+            if (!in_array($image->getClientOriginalExtension(), $mimes)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation Error',
+                    'errors' => ['images' => ['Only JPEG, PNG, JPG, and GIF files are allowed']]
+                ], 422);
+            }
+
+            if ($image->getSize() > 2048 * 1024) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation Error',
+                    'errors' => ['images' => ['Each image must be less than 2MB']]
+                ], 422);
+            }
         }
 
         try {
@@ -215,34 +254,30 @@ class CafeController extends Controller
             $uploadedCount = 0;
             $uploadedImages = [];
 
-            if ($request->hasFile('images')) {
-                $images = $request->file('images');
-                
-                foreach ($images as $image) {
-                    try {
-                        // Store image in public/cafe_images directory
-                        $imagePath = $image->store('cafe_images', 'public');
-                        
-                        if (!$imagePath) {
-                            throw new \Exception('Failed to store image: ' . $image->getClientOriginalName());
-                        }
-                        
-                        $imageUrl = url('storage/' . $imagePath);
-                        
-                        $cafeImage = CafeImage::create([
-                            'cafe_id' => $cafe->id,
-                            'image_path' => $imagePath,
-                            'image_url' => $imageUrl,
-                            'is_primary' => false,
-                        ]);
-                        
-                        $uploadedImages[] = $cafeImage;
-                        $uploadedCount++;
-                        
-                    } catch (\Exception $imageError) {
-                        Log::error('Image upload error: ' . $imageError->getMessage());
-                        continue; // Skip this image and continue with next
+            foreach ($images as $image) {
+                try {
+                    // Store image in public/cafe_images directory
+                    $imagePath = $image->store('cafe_images', 'public');
+                    
+                    if (!$imagePath) {
+                        throw new \Exception('Failed to store image: ' . $image->getClientOriginalName());
                     }
+                    
+                    $imageUrl = url('storage/' . $imagePath);
+                    
+                    $cafeImage = CafeImage::create([
+                        'cafe_id' => $cafe->id,
+                        'image_path' => $imagePath,
+                        'image_url' => $imageUrl,
+                        'is_primary' => false,
+                    ]);
+                    
+                    $uploadedImages[] = $cafeImage;
+                    $uploadedCount++;
+                    
+                } catch (\Exception $imageError) {
+                    Log::error('Image upload error: ' . $imageError->getMessage());
+                    continue; // Skip this image and continue with next
                 }
             }
 
