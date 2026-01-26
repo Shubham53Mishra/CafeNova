@@ -49,6 +49,10 @@ Route::prefix('vendor')->group(function () {
         Route::put('/cafe/{cafeId}', [CafeController::class, 'updateCafe']);
         Route::delete('/cafe/{cafeId}', [CafeController::class, 'deleteCafe']);
 
+        // ==================== CAFE IMAGE ROUTES ====================
+        Route::post('/cafe/{cafeId}/images/upload', [CafeController::class, 'uploadCafeImages']);
+        Route::delete('/cafe/{cafeId}/image/{imageId}', [CafeController::class, 'deleteCafeImage']);
+
         // ==================== ITEM ROUTES ====================
         Route::post('/cafe/{cafeId}/item/add', [ItemController::class, 'addItem']);
         Route::get('/cafe/{cafeId}/items', [ItemController::class, 'getItems']);

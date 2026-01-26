@@ -31,4 +31,9 @@ class Cafe extends Model
     {
         return $this->hasMany(Item::class);
     }
+
+    public function images()
+    {
+        return $this->hasMany(CafeImage::class);
+    }
 }

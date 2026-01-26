@@ -3,13 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cafe;
+use App\Models\CafeImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 
 class CafeController extends Controller
 {
     /**
-     * Register a new cafe for vendor
+     * Register a new cafe for vendor (WITHOUT images)
      */
     public function registerCafe(Request $request)
     {
@@ -66,7 +68,7 @@ class CafeController extends Controller
     {
         try {
             $cafes = Cafe::where('vendor_id', $request->user()->id)
-                ->with('items.subitems')
+                ->with('items.subitems', 'images')
                 ->get();
 
             return response()->json([
@@ -90,7 +92,7 @@ class CafeController extends Controller
         try {
             $cafe = Cafe::where('vendor_id', $request->user()->id)
                 ->where('id', $cafeId)
-                ->with('items.subitems')
+                ->with('items.subitems', 'images')
                 ->firstOrFail();
 
             return response()->json([
@@ -184,4 +186,92 @@ class CafeController extends Controller
             ], 404);
         }
     }
-}
+
+    /**
+     * Upload images to existing cafe
+     */
+    public function uploadCafeImages(Request $request, $cafeId)
+    {
+        $validator = Validator::make($request->all(), [
+            'images' => 'required|array|min:1',
+            'images.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation Error',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        try {
+            $cafe = Cafe::where('vendor_id', $request->user()->id)
+                ->where('id', $cafeId)
+                ->firstOrFail();
+
+            if ($request->hasFile('images')) {
+                $images = $request->file('images');
+                
+                foreach ($images as $image) {
+                    // Store image in public/cafe_images directory
+                    $imagePath = $image->store('cafe_images', 'public');
+                    $imageUrl = url('storage/' . $imagePath);
+                    
+                    CafeImage::create([
+                        'cafe_id' => $cafe->id,
+                        'image_path' => $imagePath,
+                        'image_url' => $imageUrl,
+                        'is_primary' => false,
+                    ]);
+                }
+            }
+
+            $cafe->load('images');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Images uploaded successfully',
+                'cafe' => $cafe
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Delete cafe image
+     */
+    public function deleteCafeImage(Request $request, $cafeId, $imageId)
+    {
+        try {
+            $cafe = Cafe::where('vendor_id', $request->user()->id)
+                ->where('id', $cafeId)
+                ->firstOrFail();
+
+            $image = CafeImage::where('cafe_id', $cafe->id)
+                ->where('id', $imageId)
+                ->firstOrFail();
+
+            // Delete file from storage
+            Storage::disk('public')->delete($image->image_path);
+
+            // Delete from database
+            $image->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Image deleted successfully'
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ], 500);
+        }
+    }
