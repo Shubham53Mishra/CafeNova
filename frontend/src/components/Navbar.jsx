@@ -1,23 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import { Search, MapPin, ChevronDown, Coffee } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Search, MapPin, ChevronDown, Coffee, LogOut } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
+  const navigate = useNavigate();
   const [location, setLocation] = useState('Getting location...');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [vendorEmail, setVendorEmail] = useState(null);
+  const [userEmail, setUserEmail] = useState(null);
 
   useEffect(() => {
+    // Check if vendor or user is logged in
+    const vendorToken = localStorage.getItem('vendorToken');
+    const vendorEmailStored = localStorage.getItem('vendorEmail');
+    const userToken = localStorage.getItem('userToken');
+    const userEmailStored = localStorage.getItem('userEmail');
+
+    if (vendorToken && vendorEmailStored) {
+      setVendorEmail(vendorEmailStored);
+    }
+    if (userToken && userEmailStored) {
+      setUserEmail(userEmailStored);
+    }
+
     // Set timeout to fallback after 5 seconds
     const timer = setTimeout(() => {
       setLocation('Ahmedabad');
       console.log('Location fetch timeout - showing Ahmedabad');
     }, 5000);
-
-    // Get user's live location
-    if (!navigator?.geolocation) {
-      clearTimeout(timer);
-      return;
-    }
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -141,18 +151,54 @@ const Navbar = () => {
 
           {/* Right Section - Auth Links */}
           <div className="flex items-center gap-4">
-            <Link
-              to="/login"
-              className="font-medium bg-green-700 text-white hover:text-green-600 transition-all duration-300 ease-in-out hover:bg-green-50 px-4 py-2 rounded-lg transform hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2 inline-block"
-            >
-              Login
-            </Link>
-            <Link
-              to="/signup"
-              className="px-4 py-2 bg-green-700 text-white rounded-lg font-medium hover:text-green-600 transition-all duration-300 ease-in-out hover:bg-green-50 transform hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2"
-            >
-              Sign up
-            </Link>
+            {vendorEmail ? (
+              <div className="flex items-center gap-2 px-4 py-2 bg-green-50 rounded-lg border border-green-200">
+                <span className="text-sm font-medium text-green-700">{vendorEmail}</span>
+                <button
+                  onClick={() => {
+                    localStorage.removeItem('vendorToken');
+                    localStorage.removeItem('vendorEmail');
+                    navigate('/');
+                    window.location.reload();
+                  }}
+                  className="text-green-600 hover:text-red-600 transition-colors duration-300"
+                  title="Logout"
+                >
+                  <LogOut size={18} />
+                </button>
+              </div>
+            ) : userEmail ? (
+              <div className="flex items-center gap-2 px-4 py-2 bg-green-50 rounded-lg border border-green-200">
+                <span className="text-sm font-medium text-green-700">{userEmail}</span>
+                <button
+                  onClick={() => {
+                    localStorage.removeItem('userToken');
+                    localStorage.removeItem('userEmail');
+                    navigate('/');
+                    window.location.reload();
+                  }}
+                  className="text-green-600 hover:text-red-600 transition-colors duration-300"
+                  title="Logout"
+                >
+                  <LogOut size={18} />
+                </button>
+              </div>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  className="font-medium bg-green-700 text-white hover:text-green-600 transition-all duration-300 ease-in-out hover:bg-green-50 px-4 py-2 rounded-lg transform hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2 inline-block"
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/signup"
+                  className="px-4 py-2 bg-green-700 text-white rounded-lg font-medium hover:text-green-600 transition-all duration-300 ease-in-out hover:bg-green-50 transform hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2"
+                >
+                  Sign up
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>

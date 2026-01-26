@@ -9,7 +9,11 @@ const Login = () => {
 
   const handleLogin = (e) => {
     e.preventDefault();
+    // Store user email
+    localStorage.setItem('userEmail', email);
+    localStorage.setItem('userToken', 'dummy-token');
     console.log('User Login attempt:', { email, password });
+    window.location.reload();
   };
 
   return (

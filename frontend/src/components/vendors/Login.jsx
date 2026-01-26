@@ -35,6 +35,8 @@ const Login = () => {
         if (data.token) {
           localStorage.setItem('vendorToken', data.token);
         }
+        // Store vendor email
+        localStorage.setItem('vendorEmail', email);
         setTimeout(() => {
           window.location.href = '/vendors';
         }, 1500);
