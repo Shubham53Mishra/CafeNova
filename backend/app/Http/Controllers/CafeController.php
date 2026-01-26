@@ -15,11 +15,11 @@ class CafeController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'cafe_name' => 'required|string|max:255',
-            'cafe_description' => 'nullable|string',
-            'address' => 'nullable|string',
-            'city' => 'nullable|string',
-            'state' => 'nullable|string',
-            'pincode' => 'nullable|digits:6',
+            'cafe_description' => 'required|string',
+            'address' => 'required|string',
+            'city' => 'required|string',
+            'state' => 'required|string',
+            'pincode' => 'required|digits:6',
             'latitude' => 'required|numeric|between:-90,90',
             'longitude' => 'required|numeric|between:-180,180',
         ]);
