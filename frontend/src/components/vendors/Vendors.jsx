@@ -419,7 +419,7 @@ const Vendors = () => {
                 )}
 
                 {/* Cafes List */}
-                {vendorProfile.cafes && vendorProfile.cafes.length > 0 && (
+                {vendorProfile.cafes && vendorProfile.cafes.length > 0 ? (
                   <div>
                     <h2 className="text-2xl font-bold text-gray-800 mb-4">
                       Your Cafes
@@ -448,6 +448,12 @@ const Vendors = () => {
                         </div>
                       ))}
                     </div>
+                  </div>
+                ) : (
+                  <div className="bg-blue-50 rounded-lg p-8 text-center border border-blue-200">
+                    <p className="text-blue-600 text-lg font-medium">
+                      No cafes registered yet. Click "Register New Cafe" to get started!
+                    </p>
                   </div>
                 )}
               </div>
