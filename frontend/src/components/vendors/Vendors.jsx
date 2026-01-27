@@ -8,9 +8,15 @@ const Vendors = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [cafeName, setCafeName] = useState('');
   const [cafeDescription, setCafeDescription] = useState('');
-  const [cafeLocation, setCafeLocation] = useState('');
-  const [cafeImage, setCafeImage] = useState('');
+  const [address, setAddress] = useState('');
+  const [city, setCity] = useState('');
+  const [state, setState] = useState('');
+  const [pincode, setPincode] = useState('');
+  const [latitude, setLatitude] = useState('');
+  const [longitude, setLongitude] = useState('');
+  const [cafeImages, setCafeImages] = useState([]);
   const [registering, setRegistering] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [vendorProfile, setVendorProfile] = useState(null);
@@ -64,32 +70,42 @@ const Vendors = () => {
 
     try {
       const vendorToken = localStorage.getItem('vendorToken');
-      const response = await fetch(`${API_URL}/api/vendor/register-cafe`, {
+      
+      // Step 1: Register Cafe
+      const response = await fetch(`${API_URL}/api/vendor/cafe/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${vendorToken}`,
         },
         body: JSON.stringify({
-          name: cafeName,
-          description: cafeDescription,
-          location: cafeLocation,
-          image: cafeImage,
+          cafe_name: cafeName,
+          cafe_description: cafeDescription,
+          address: address,
+          city: city,
+          state: state,
+          pincode: pincode,
+          latitude: parseFloat(latitude),
+          longitude: parseFloat(longitude),
         }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
+        const cafeId = data.cafe_id || data.data?.id || data.id;
         setSuccess('Cafe registered successfully!');
-        setCafeName('');
-        setCafeDescription('');
-        setCafeLocation('');
-        setCafeImage('');
-        // Refresh page or update state to show cafes
-        setTimeout(() => {
-          window.location.reload();
-        }, 1500);
+        
+        // Step 2: Upload images if provided
+        if (cafeImages.length > 0 && cafeId) {
+          await uploadCafeImages(cafeId, vendorToken);
+        } else {
+          // Clear form and reload
+          clearCafeForm();
+          setTimeout(() => {
+            window.location.reload();
+          }, 1500);
+        }
       } else {
         let errorMsg = data.message || data.error || 'Failed to register cafe';
         if (data.errors) {
@@ -103,6 +119,61 @@ const Vendors = () => {
     } finally {
       setRegistering(false);
     }
+  };
+
+  // Upload cafe images
+  const uploadCafeImages = async (cafeId, token) => {
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      cafeImages.forEach((image) => {
+        formData.append('images[]', image);
+      });
+
+      const response = await fetch(`${API_URL}/api/vendor/cafe/${cafeId}/images/upload`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setSuccess('Cafe and images uploaded successfully!');
+        clearCafeForm();
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
+      } else {
+        setError(data.message || 'Failed to upload images');
+      }
+    } catch (err) {
+      setError('Error uploading images: ' + err.message);
+      console.error('Upload error:', err);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // Clear cafe form
+  const clearCafeForm = () => {
+    setCafeName('');
+    setCafeDescription('');
+    setAddress('');
+    setCity('');
+    setState('');
+    setPincode('');
+    setLatitude('');
+    setLongitude('');
+    setCafeImages([]);
+  };
+
+  // Handle image file selection
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
+    setCafeImages(files);
   };
 
   return (
@@ -167,42 +238,122 @@ const Vendors = () => {
                   />
                 </div>
 
-                {/* Cafe Location */}
+                {/* Address */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Location
+                    Address
                   </label>
                   <input
                     type="text"
-                    value={cafeLocation}
-                    onChange={(e) => setCafeLocation(e.target.value)}
-                    placeholder="Enter your cafe location"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                    placeholder="Enter your cafe address"
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent"
                     required
                   />
                 </div>
 
-                {/* Cafe Image */}
+                {/* City, State, Pincode */}
+                <div className="grid grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      City
+                    </label>
+                    <input
+                      type="text"
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                      placeholder="City"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      State
+                    </label>
+                    <input
+                      type="text"
+                      value={state}
+                      onChange={(e) => setState(e.target.value)}
+                      placeholder="State (e.g., KA)"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Pincode
+                    </label>
+                    <input
+                      type="text"
+                      value={pincode}
+                      onChange={(e) => setPincode(e.target.value)}
+                      placeholder="Pincode"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent"
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* Latitude, Longitude */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Latitude
+                    </label>
+                    <input
+                      type="number"
+                      step="0.0001"
+                      value={latitude}
+                      onChange={(e) => setLatitude(e.target.value)}
+                      placeholder="e.g., 12.9716"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Longitude
+                    </label>
+                    <input
+                      type="number"
+                      step="0.0001"
+                      value={longitude}
+                      onChange={(e) => setLongitude(e.target.value)}
+                      placeholder="e.g., 77.5946"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent"
+                      required
+                    />
+                  </div>
+                </div>
+
+                {/* Cafe Images */}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Image URL
+                    Cafe Images (Multiple)
                   </label>
                   <input
-                    type="url"
-                    value={cafeImage}
-                    onChange={(e) => setCafeImage(e.target.value)}
-                    placeholder="Enter image URL"
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={handleImageChange}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent"
                   />
+                  {cafeImages.length > 0 && (
+                    <p className="mt-2 text-sm text-green-600">
+                      {cafeImages.length} image(s) selected
+                    </p>
+                  )}
                 </div>
 
                 {/* Submit Button */}
                 <button
                   type="submit"
-                  disabled={registering}
+                  disabled={registering || uploading}
                   className="w-full bg-green-700 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-800 transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {registering ? 'Registering...' : 'Register Cafe'}
+                  {registering || uploading ? 'Processing...' : 'Register Cafe'}
                 </button>
               </form>
 
