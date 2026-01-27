@@ -5,9 +5,7 @@ import Navbar from '../../components/Navbar';
 const API_URL = 'https://cafenova.onrender.com';
 
 const Vendors = () => {
-  const [selectedVendor, setSelectedVendor] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [cafeName, setCafeName] = useState('');
   const [cafeDescription, setCafeDescription] = useState('');
   const [cafeLocation, setCafeLocation] = useState('');
@@ -15,17 +13,47 @@ const Vendors = () => {
   const [registering, setRegistering] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [vendorProfile, setVendorProfile] = useState(null);
+  const [profileLoading, setProfileLoading] = useState(false);
 
   // Check if vendor is logged in
   useEffect(() => {
     const vendorToken = localStorage.getItem('vendorToken');
     if (vendorToken) {
       setIsLoggedIn(true);
+      // Fetch vendor profile
+      fetchVendorProfile(vendorToken);
     } else {
       setIsLoggedIn(false);
     }
-    setLoading(false);
   }, []);
+
+  // Fetch vendor profile
+  const fetchVendorProfile = async (token) => {
+    setProfileLoading(true);
+    try {
+      const response = await fetch(`${API_URL}/api/vendor/profile`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setVendorProfile(data);
+      } else {
+        setError(data.message || 'Failed to fetch vendor profile');
+      }
+    } catch (err) {
+      setError('Error fetching vendor profile: ' + err.message);
+      console.error('Profile fetch error:', err);
+    } finally {
+      setProfileLoading(false);
+    }
+  };
 
   // Handle cafe registration
   const handleCafeRegister = async (e) => {
@@ -76,63 +104,6 @@ const Vendors = () => {
       setRegistering(false);
     }
   };
-
-  const vendors = [
-    {
-      id: 1,
-      name: 'Café Bliss',
-      cuisine: 'Italian Cafe',
-      rating: 4.8,
-      deliveryTime: '25-30 mins',
-      distance: '2.5 km',
-      image: 'https://via.placeholder.com/300x200?text=Cafe+Bliss'
-    },
-    {
-      id: 2,
-      name: 'The Coffee House',
-      cuisine: 'Coffee & Snacks',
-      rating: 4.6,
-      deliveryTime: '20-25 mins',
-      distance: '1.8 km',
-      image: 'https://via.placeholder.com/300x200?text=Coffee+House'
-    },
-    {
-      id: 3,
-      name: 'Brew & Bake',
-      cuisine: 'Bakery & Coffee',
-      rating: 4.7,
-      deliveryTime: '30-35 mins',
-      distance: '3.2 km',
-      image: 'https://via.placeholder.com/300x200?text=Brew+Bake'
-    },
-    {
-      id: 4,
-      name: 'Espresso Express',
-      cuisine: 'Premium Coffee',
-      rating: 4.9,
-      deliveryTime: '15-20 mins',
-      distance: '1.2 km',
-      image: 'https://via.placeholder.com/300x200?text=Espresso+Express'
-    },
-    {
-      id: 5,
-      name: 'Café Mocha',
-      cuisine: 'Chocolate & Coffee',
-      rating: 4.5,
-      deliveryTime: '25-30 mins',
-      distance: '2.0 km',
-      image: 'https://via.placeholder.com/300x200?text=Cafe+Mocha'
-    },
-    {
-      id: 6,
-      name: 'Urban Café',
-      cuisine: 'Modern Cafe',
-      rating: 4.7,
-      deliveryTime: '20-25 mins',
-      distance: '1.5 km',
-      image: 'https://via.placeholder.com/300x200?text=Urban+Cafe'
-    }
-  ];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -247,9 +218,89 @@ const Vendors = () => {
             </div>
           </div>
         ) : (
-          // Show Cafes List if logged in
-          <div className="text-center py-12">
-            <p className="text-gray-600 text-lg">Vendor dashboard coming soon...</p>
+          // Show Vendor Dashboard if logged in
+          <div>
+            {profileLoading ? (
+              <div className="text-center py-12">
+                <p className="text-gray-600 text-lg">Loading vendor profile...</p>
+              </div>
+            ) : vendorProfile ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {/* Profile Section */}
+                <div className="md:col-span-3">
+                  <div className="bg-white rounded-lg shadow-lg p-8">
+                    <h1 className="text-4xl font-bold text-gray-800 mb-2">
+                      Welcome, {vendorProfile.vendor?.name || 'Vendor'}
+                    </h1>
+                    <p className="text-gray-600 mb-6">
+                      Email: {vendorProfile.vendor?.email || 'N/A'}
+                    </p>
+
+                    {error && (
+                      <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-700">
+                        <AlertCircle size={18} />
+                        {error}
+                      </div>
+                    )}
+
+                    {/* Stats Section */}
+                    {vendorProfile.data && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                        <div className="bg-green-50 p-4 rounded-lg">
+                          <p className="text-gray-600 text-sm">Total Cafes</p>
+                          <p className="text-3xl font-bold text-green-700">
+                            {vendorProfile.data.totalCafes || 0}
+                          </p>
+                        </div>
+                        <div className="bg-blue-50 p-4 rounded-lg">
+                          <p className="text-gray-600 text-sm">Total Orders</p>
+                          <p className="text-3xl font-bold text-blue-700">
+                            {vendorProfile.data.totalOrders || 0}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Cafes List */}
+                    {vendorProfile.cafes && vendorProfile.cafes.length > 0 && (
+                      <div className="mt-8">
+                        <h2 className="text-2xl font-bold text-gray-800 mb-4">
+                          Your Cafes
+                        </h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {vendorProfile.cafes.map((cafe) => (
+                            <div
+                              key={cafe.id}
+                              className="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow"
+                            >
+                              {cafe.image && (
+                                <img
+                                  src={cafe.image}
+                                  alt={cafe.name}
+                                  className="w-full h-40 object-cover rounded-lg mb-4"
+                                />
+                              )}
+                              <h3 className="text-lg font-bold text-gray-800">{cafe.name}</h3>
+                              <p className="text-gray-600 text-sm mb-2">
+                                {cafe.description}
+                              </p>
+                              <p className="text-gray-600 flex items-center gap-2 text-sm">
+                                <MapPin size={16} />
+                                {cafe.location}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-gray-600 text-lg">Failed to load vendor profile</p>
+              </div>
+            )}
           </div>
         )}
       </div>
