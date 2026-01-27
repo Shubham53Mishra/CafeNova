@@ -22,6 +22,8 @@ const Vendors = () => {
   const [vendorProfile, setVendorProfile] = useState(null);
   const [profileLoading, setProfileLoading] = useState(false);
   const [showRegistrationForm, setShowRegistrationForm] = useState(false);
+  const [cafes, setCafes] = useState([]);
+  const [cafesLoading, setCafesLoading] = useState(false);
 
   // Check if vendor is logged in
   useEffect(() => {
@@ -30,6 +32,8 @@ const Vendors = () => {
       setIsLoggedIn(true);
       // Fetch vendor profile
       fetchVendorProfile(vendorToken);
+      // Fetch cafes list
+      fetchCafes(vendorToken);
     } else {
       setIsLoggedIn(false);
     }
@@ -59,6 +63,32 @@ const Vendors = () => {
       console.error('Profile fetch error:', err);
     } finally {
       setProfileLoading(false);
+    }
+  };
+
+  // Fetch vendor cafes
+  const fetchCafes = async (token) => {
+    setCafesLoading(true);
+    try {
+      const response = await fetch(`${API_URL}/api/vendor/cafes`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setCafes(data.data || data.cafes || []);
+      } else {
+        console.error('Failed to fetch cafes:', data.message);
+      }
+    } catch (err) {
+      console.error('Error fetching cafes:', err);
+    } finally {
+      setCafesLoading(false);
     }
   };
 
@@ -419,13 +449,17 @@ const Vendors = () => {
                 )}
 
                 {/* Cafes List */}
-                {vendorProfile.cafes && vendorProfile.cafes.length > 0 ? (
+                {cafesLoading ? (
+                  <div className="text-center py-12">
+                    <p className="text-gray-600 text-lg">Loading cafes...</p>
+                  </div>
+                ) : cafes && cafes.length > 0 ? (
                   <div>
                     <h2 className="text-2xl font-bold text-gray-800 mb-4">
                       Your Cafes
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {vendorProfile.cafes.map((cafe) => (
+                      {cafes.map((cafe) => (
                         <div
                           key={cafe.id}
                           className="bg-white rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow"
@@ -443,7 +477,7 @@ const Vendors = () => {
                           </p>
                           <p className="text-gray-600 flex items-center gap-2 text-sm">
                             <MapPin size={16} />
-                            {cafe.location}
+                            {cafe.location || cafe.address}
                           </p>
                         </div>
                       ))}
