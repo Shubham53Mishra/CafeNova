@@ -450,8 +450,8 @@ const Vendors = () => {
                     </div>
                   </div>
                 ) : (
-                  <div className="bg-blue-50 rounded-lg p-8 text-center border border-blue-200">
-                    <p className="text-blue-600 text-lg font-medium">
+                  <div className="bg-green-50 rounded-lg p-8 text-center border border-green-200">
+                    <p className="text-green-600 text-lg font-medium">
                       No cafes registered yet. Click "Register New Cafe" to get started!
                     </p>
                   </div>
