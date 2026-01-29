@@ -628,115 +628,6 @@ const Vendors = () => {
                         </div>
                       ))}
                     </div>
-
-                    {/* Cafe Details Modal */}
-                    {selectedCafe && (
-                      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                        <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
-                          {/* Modal Header */}
-                          <div className="sticky top-0 bg-green-700 text-white p-6 flex justify-between items-center">
-                            <h2 className="text-2xl font-bold">{selectedCafe.name}</h2>
-                            <button
-                              onClick={() => setSelectedCafe(null)}
-                              className="text-white text-2xl font-bold hover:bg-green-800 rounded-full w-10 h-10 flex items-center justify-center transition-all"
-                            >
-                              ✕
-                            </button>
-                          </div>
-
-                          {/* Modal Content */}
-                          <div className="p-6">
-                            {/* Cafe Image */}
-                            {selectedCafe.image && (
-                              <img
-                                src={selectedCafe.image}
-                                alt={selectedCafe.name}
-                                className="w-full h-64 object-cover rounded-lg mb-6"
-                              />
-                            )}
-
-                            {/* Cafe Details */}
-                            <div className="space-y-4">
-                              <div>
-                                <h3 className="text-sm font-semibold text-gray-600 uppercase mb-2">
-                                  Description
-                                </h3>
-                                <p className="text-gray-800">
-                                  {selectedCafe.description || 'No description available'}
-                                </p>
-                              </div>
-
-                              <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                  <h3 className="text-sm font-semibold text-gray-600 uppercase mb-2">
-                                    Address
-                                  </h3>
-                                  <p className="text-gray-800 flex items-start gap-2">
-                                    <MapPin size={18} className="text-green-600 shrink-0 mt-1" />
-                                    {selectedCafe.location || selectedCafe.address || 'N/A'}
-                                  </p>
-                                </div>
-
-                                <div>
-                                  <h3 className="text-sm font-semibold text-gray-600 uppercase mb-2">
-                                    City
-                                  </h3>
-                                  <p className="text-gray-800">
-                                    {selectedCafe.city || 'N/A'}
-                                  </p>
-                                </div>
-
-                                <div>
-                                  <h3 className="text-sm font-semibold text-gray-600 uppercase mb-2">
-                                    State
-                                  </h3>
-                                  <p className="text-gray-800">
-                                    {selectedCafe.state || 'N/A'}
-                                  </p>
-                                </div>
-
-                                <div>
-                                  <h3 className="text-sm font-semibold text-gray-600 uppercase mb-2">
-                                    Pincode
-                                  </h3>
-                                  <p className="text-gray-800">
-                                    {selectedCafe.pincode || 'N/A'}
-                                  </p>
-                                </div>
-                              </div>
-
-                              <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                  <h3 className="text-sm font-semibold text-gray-600 uppercase mb-2">
-                                    Latitude
-                                  </h3>
-                                  <p className="text-gray-800">
-                                    {selectedCafe.latitude || 'N/A'}
-                                  </p>
-                                </div>
-
-                                <div>
-                                  <h3 className="text-sm font-semibold text-gray-600 uppercase mb-2">
-                                    Longitude
-                                  </h3>
-                                  <p className="text-gray-800">
-                                    {selectedCafe.longitude || 'N/A'}
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-
-                            {/* Close Button */}
-                            <button
-                              onClick={() => setSelectedCafe(null)}
-                              className="w-full mt-6 bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-gray-700 transition-all duration-300"
-                            >
-                              Close
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    )}
                   </div>
                 ) : (
                   <div className="bg-green-50 rounded-lg p-8 text-center border border-green-200">
@@ -749,6 +640,118 @@ const Vendors = () => {
             ) : (
               <div className="text-center py-12">
                 <p className="text-gray-600 text-lg">Failed to load vendor profile</p>
+              </div>
+            )}
+
+            {/* Full Page Cafe Details View */}
+            {selectedCafe && (
+              <div className="min-h-screen bg-gray-50">
+                {/* Header */}
+                <div className="bg-white shadow-lg">
+                  <div className="max-w-6xl mx-auto px-4 py-6">
+                    <button
+                      onClick={() => setSelectedCafe(null)}
+                      className="inline-flex items-center gap-2 text-green-600 hover:text-green-700 font-semibold mb-4 transition-all"
+                    >
+                      ← Back to Cafes
+                    </button>
+                    <h1 className="text-4xl font-bold text-gray-800">{selectedCafe.name}</h1>
+                  </div>
+                </div>
+
+                {/* Main Content */}
+                <div className="max-w-6xl mx-auto px-4 py-12">
+                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    {/* Left Column - Image */}
+                    <div className="lg:col-span-2">
+                      <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+                        {selectedCafe.image ? (
+                          <img
+                            src={selectedCafe.image}
+                            alt={selectedCafe.name}
+                            className="w-full h-96 object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-96 flex items-center justify-center bg-linear-to-br from-green-100 to-green-200">
+                            <MapPin size={64} className="text-green-700 opacity-30" />
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Description Section */}
+                      <div className="bg-white rounded-lg shadow-lg p-8 mt-8">
+                        <h2 className="text-2xl font-bold text-gray-800 mb-4">About This Cafe</h2>
+                        <p className="text-gray-700 text-lg leading-relaxed">
+                          {selectedCafe.description || 'No description available'}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Right Column - Details */}
+                    <div className="lg:col-span-1">
+                      {/* Location Card */}
+                      <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+                        <h3 className="text-xl font-bold text-green-700 mb-4 flex items-center gap-2">
+                          <MapPin size={24} />
+                          Location
+                        </h3>
+                        <div className="space-y-3">
+                          <div>
+                            <p className="text-xs font-semibold text-gray-500 uppercase">Address</p>
+                            <p className="text-gray-800">
+                              {selectedCafe.location || selectedCafe.address || 'N/A'}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-xs font-semibold text-gray-500 uppercase">City</p>
+                            <p className="text-gray-800 font-medium">
+                              {selectedCafe.city || 'N/A'}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-xs font-semibold text-gray-500 uppercase">State</p>
+                            <p className="text-gray-800 font-medium">
+                              {selectedCafe.state || 'N/A'}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-xs font-semibold text-gray-500 uppercase">Pincode</p>
+                            <p className="text-gray-800 font-medium">
+                              {selectedCafe.pincode || 'N/A'}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Coordinates Card */}
+                      <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+                        <h3 className="text-xl font-bold text-green-700 mb-4">Coordinates</h3>
+                        <div className="space-y-3">
+                          <div>
+                            <p className="text-xs font-semibold text-gray-500 uppercase">Latitude</p>
+                            <p className="text-gray-800 font-mono">
+                              {selectedCafe.latitude || 'N/A'}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-xs font-semibold text-gray-500 uppercase">Longitude</p>
+                            <p className="text-gray-800 font-mono">
+                              {selectedCafe.longitude || 'N/A'}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Action Button */}
+                      <button
+                        onClick={() => setSelectedCafe(null)}
+                        className="w-full bg-green-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-700 transition-all duration-300 shadow-lg"
+                      >
+                        Close Details
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
           </div>
