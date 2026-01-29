@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { MapPin, Mail, Phone, Star, ArrowLeft } from 'lucide-react';
+import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
 
 const API_URL = 'https://cafenova.onrender.com';
 
-const VendorProfile = ({ onBack }) => {
+const VendorProfile = () => {
+  const { cafeId } = useParams();
+  const navigate = useNavigate();
   const [vendorProfile, setVendorProfile] = useState(null);
   const [cafes, setCafes] = useState([]);
+  const [selectedCafe, setSelectedCafe] = useState(null);
   const [profileLoading, setProfileLoading] = useState(true);
-  const [selectedCafeIndex, setSelectedCafeIndex] = useState(0);
-  const [error, setError] = useState('');
 
   // Fetch vendor profile and cafes on mount
   useEffect(() => {
@@ -19,6 +21,19 @@ const VendorProfile = ({ onBack }) => {
       fetchCafes(vendorToken);
     }
   }, []);
+
+  // Set selected cafe when cafeId changes or cafes load
+  useEffect(() => {
+    if (cafeId && cafes.length > 0) {
+      const cafe = cafes.find((c) => c._id === cafeId);
+      setSelectedCafe(cafe);
+      if (!cafe) {
+        setSelectedCafe(cafes[0]);
+      }
+    } else if (cafes.length > 0 && !selectedCafe) {
+      setSelectedCafe(cafes[0]);
+    }
+  }, [cafeId, cafes, selectedCafe]);
 
   // Fetch vendor profile
   const fetchVendorProfile = async (token) => {
@@ -34,11 +49,9 @@ const VendorProfile = ({ onBack }) => {
       const data = await response.json();
       if (response.ok) {
         setVendorProfile(data);
-      } else {
-        setError(data.message || 'Failed to fetch vendor profile');
       }
     } catch (err) {
-      setError('Error fetching vendor profile: ' + err.message);
+      console.error('Error fetching vendor profile:', err);
     } finally {
       setProfileLoading(false);
     }
@@ -86,8 +99,6 @@ const VendorProfile = ({ onBack }) => {
     );
   }
 
-  const currentCafe = cafes[selectedCafeIndex];
-
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
@@ -95,7 +106,7 @@ const VendorProfile = ({ onBack }) => {
       <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Back Button */}
         <button
-          onClick={onBack}
+          onClick={() => navigate('/vendors')}
           className="inline-flex items-center gap-2 text-green-600 hover:text-green-700 font-semibold mb-6 transition-all"
         >
           <ArrowLeft size={20} />
@@ -190,12 +201,15 @@ const VendorProfile = ({ onBack }) => {
               {/* Cafe List - Left Sidebar */}
               <div className="lg:col-span-1 bg-gray-50 border-r">
                 <div className="sticky top-0 max-h-[calc(100vh-200px)] overflow-y-auto">
-                  {cafes.map((cafe, index) => (
+                  {cafes.map((cafe) => (
                     <button
-                      key={cafe.id}
-                      onClick={() => setSelectedCafeIndex(index)}
+                      key={cafe._id}
+                      onClick={() => {
+                        setSelectedCafe(cafe);
+                        navigate(`/vendors/cafe/${cafe._id}`);
+                      }}
                       className={`w-full text-left p-4 border-b transition-all ${
-                        selectedCafeIndex === index
+                        selectedCafe?._id === cafe._id
                           ? 'bg-green-100 border-l-4 border-l-green-700'
                           : 'hover:bg-gray-100'
                       }`}
@@ -213,14 +227,14 @@ const VendorProfile = ({ onBack }) => {
 
               {/* Cafe Details - Right Content */}
               <div className="lg:col-span-3 p-8">
-                {currentCafe ? (
+                {selectedCafe ? (
                   <div className="space-y-8">
                     {/* Cafe Image */}
-                    {currentCafe.image && (
+                    {selectedCafe.image && (
                       <div className="rounded-lg overflow-hidden">
                         <img
-                          src={currentCafe.image}
-                          alt={currentCafe.name}
+                          src={selectedCafe.image}
+                          alt={selectedCafe.name}
                           className="w-full h-64 object-cover"
                         />
                       </div>
@@ -229,7 +243,7 @@ const VendorProfile = ({ onBack }) => {
                     {/* Cafe Name */}
                     <div>
                       <h3 className="text-3xl font-bold text-green-700 mb-2">
-                        {currentCafe.name}
+                        {selectedCafe.name}
                       </h3>
                     </div>
 
@@ -239,7 +253,7 @@ const VendorProfile = ({ onBack }) => {
                         Description
                       </h4>
                       <p className="text-gray-700 leading-relaxed">
-                        {currentCafe.description || 'No description available'}
+                        {selectedCafe.description || 'No description available'}
                       </p>
                     </div>
 
@@ -251,7 +265,7 @@ const VendorProfile = ({ onBack }) => {
                         </p>
                         <p className="text-gray-800 flex items-start gap-2">
                           <MapPin size={18} className="text-green-600 shrink-0 mt-1" />
-                          {currentCafe.location || currentCafe.address || 'N/A'}
+                          {selectedCafe.location || selectedCafe.address || 'N/A'}
                         </p>
                       </div>
 
@@ -260,7 +274,7 @@ const VendorProfile = ({ onBack }) => {
                           City
                         </p>
                         <p className="text-gray-800">
-                          {currentCafe.city || 'N/A'}
+                          {selectedCafe.city || 'N/A'}
                         </p>
                       </div>
 
@@ -269,7 +283,7 @@ const VendorProfile = ({ onBack }) => {
                           State
                         </p>
                         <p className="text-gray-800">
-                          {currentCafe.state || 'N/A'}
+                          {selectedCafe.state || 'N/A'}
                         </p>
                       </div>
 
@@ -278,7 +292,7 @@ const VendorProfile = ({ onBack }) => {
                           Pincode
                         </p>
                         <p className="text-gray-800">
-                          {currentCafe.pincode || 'N/A'}
+                          {selectedCafe.pincode || 'N/A'}
                         </p>
                       </div>
 
@@ -287,7 +301,7 @@ const VendorProfile = ({ onBack }) => {
                           Latitude
                         </p>
                         <p className="text-gray-800 font-mono">
-                          {currentCafe.latitude || 'N/A'}
+                          {selectedCafe.latitude || 'N/A'}
                         </p>
                       </div>
 
@@ -296,7 +310,7 @@ const VendorProfile = ({ onBack }) => {
                           Longitude
                         </p>
                         <p className="text-gray-800 font-mono">
-                          {currentCafe.longitude || 'N/A'}
+                          {selectedCafe.longitude || 'N/A'}
                         </p>
                       </div>
                     </div>

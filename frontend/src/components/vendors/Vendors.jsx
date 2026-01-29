@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Star, MapPin, Clock, AlertCircle, CheckCircle, MapPinned } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
 import { Country, State, City } from 'country-state-city';
-import VendorProfile from './VendorProfile';
 
 const API_URL = 'https://cafenova.onrender.com';
 
 const Vendors = () => {
+  const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [cafeName, setCafeName] = useState('');
   const [cafeDescription, setCafeDescription] = useState('');
@@ -31,7 +32,6 @@ const Vendors = () => {
   const [cities, setCities] = useState([]);
   const [countries, setCountries] = useState([]);
   const [countryCode, setCountryCode] = useState('IN');
-  const [selectedCafe, setSelectedCafe] = useState(null);
   useEffect(() => {
     const vendorToken = localStorage.getItem('vendorToken');
     if (vendorToken) {
@@ -289,13 +289,9 @@ const Vendors = () => {
     <div className="min-h-screen bg-gray-50">
       <Navbar />
 
-      {/* Show Vendor Profile Page when selected cafe is clicked */}
-      {selectedCafe ? (
-        <VendorProfile onBack={() => setSelectedCafe(null)} />
-      ) : (
-        <div className="max-w-7xl mx-auto px-4 py-8">
-          {/* Check if vendor is logged in */}
-          {!isLoggedIn ? (
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Check if vendor is logged in */}
+        {!isLoggedIn ? (
             // Show login prompt
             <div className="flex items-center justify-center min-h-[calc(100vh-120px)] px-4">
               <div className="w-full max-w-2xl bg-white rounded-lg shadow-lg p-8 text-center">
@@ -311,8 +307,7 @@ const Vendors = () => {
               </div>
             </div>
           ) : (
-            // Show Vendor Dashboard if logged in
-            <div>
+            <>
             {profileLoading ? (
               <div className="text-center py-12">
                 <p className="text-gray-600 text-lg">Loading vendor profile...</p>
@@ -591,7 +586,6 @@ const Vendors = () => {
                       {cafes.map((cafe) => (
                         <div
                           key={cafe.id}
-                          onClick={() => setSelectedCafe(cafe)}
                           className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer border border-gray-200"
                         >
                           {/* Cafe Image */}
@@ -624,7 +618,7 @@ const Vendors = () => {
                               </p>
                             </div>
                             <button
-                              onClick={() => setSelectedCafe(cafe)}
+                              onClick={() => navigate(`/vendors/cafe/${cafe._id}`)}
                               className="w-full bg-green-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-700 transition-all duration-300"
                             >
                               View Details
@@ -647,10 +641,9 @@ const Vendors = () => {
                 <p className="text-gray-600 text-lg">Failed to load vendor profile</p>
               </div>
             )}
-            </div>
+            </>
           )}
-        </div>
-      )}
+      </div>
     </div>
   );
 };
