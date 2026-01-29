@@ -30,6 +30,7 @@ const Vendors = () => {
   const [cities, setCities] = useState([]);
   const [countries, setCountries] = useState([]);
   const [countryCode, setCountryCode] = useState('IN');
+  const [selectedCafe, setSelectedCafe] = useState(null);
   useEffect(() => {
     const vendorToken = localStorage.getItem('vendorToken');
     if (vendorToken) {
@@ -578,33 +579,164 @@ const Vendors = () => {
                   </div>
                 ) : cafes && cafes.length > 0 ? (
                   <div>
-                    <h2 className="text-2xl font-bold text-gray-800 mb-4">
+                    <h2 className="text-3xl font-bold text-gray-800 mb-8">
                       Your Cafes
                     </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {cafes.map((cafe) => (
                         <div
                           key={cafe.id}
-                          className="bg-white rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow"
+                          onClick={() => setSelectedCafe(cafe)}
+                          className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer border border-gray-200"
                         >
-                          {cafe.image && (
-                            <img
-                              src={cafe.image}
-                              alt={cafe.name}
-                              className="w-full h-40 object-cover rounded-lg mb-4"
-                            />
-                          )}
-                          <h3 className="text-lg font-bold text-gray-800">{cafe.name}</h3>
-                          <p className="text-gray-600 text-sm mb-2">
-                            {cafe.description}
-                          </p>
-                          <p className="text-gray-600 flex items-center gap-2 text-sm">
-                            <MapPin size={16} />
-                            {cafe.location || cafe.address}
-                          </p>
+                          {/* Cafe Image */}
+                          <div className="relative overflow-hidden h-48 bg-gray-200">
+                            {cafe.image ? (
+                              <img
+                                src={cafe.image}
+                                alt={cafe.name}
+                                className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-green-100 to-green-200">
+                                <MapPin size={48} className="text-green-700 opacity-50" />
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Cafe Info */}
+                          <div className="p-6">
+                            <h3 className="text-xl font-bold text-green-700 mb-2">
+                              {cafe.name}
+                            </h3>
+                            <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                              {cafe.description || 'No description available'}
+                            </p>
+                            <div className="flex items-start gap-2 text-gray-700 mb-4">
+                              <MapPin size={18} className="text-green-600 shrink-0 mt-0.5" />
+                              <p className="text-sm">
+                                {cafe.location || cafe.address || 'No address provided'}
+                              </p>
+                            </div>
+                            <button
+                              onClick={() => setSelectedCafe(cafe)}
+                              className="w-full bg-green-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-700 transition-all duration-300"
+                            >
+                              View Details
+                            </button>
+                          </div>
                         </div>
                       ))}
                     </div>
+
+                    {/* Cafe Details Modal */}
+                    {selectedCafe && (
+                      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                        <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
+                          {/* Modal Header */}
+                          <div className="sticky top-0 bg-green-700 text-white p-6 flex justify-between items-center">
+                            <h2 className="text-2xl font-bold">{selectedCafe.name}</h2>
+                            <button
+                              onClick={() => setSelectedCafe(null)}
+                              className="text-white text-2xl font-bold hover:bg-green-800 rounded-full w-10 h-10 flex items-center justify-center transition-all"
+                            >
+                              ✕
+                            </button>
+                          </div>
+
+                          {/* Modal Content */}
+                          <div className="p-6">
+                            {/* Cafe Image */}
+                            {selectedCafe.image && (
+                              <img
+                                src={selectedCafe.image}
+                                alt={selectedCafe.name}
+                                className="w-full h-64 object-cover rounded-lg mb-6"
+                              />
+                            )}
+
+                            {/* Cafe Details */}
+                            <div className="space-y-4">
+                              <div>
+                                <h3 className="text-sm font-semibold text-gray-600 uppercase mb-2">
+                                  Description
+                                </h3>
+                                <p className="text-gray-800">
+                                  {selectedCafe.description || 'No description available'}
+                                </p>
+                              </div>
+
+                              <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                  <h3 className="text-sm font-semibold text-gray-600 uppercase mb-2">
+                                    Address
+                                  </h3>
+                                  <p className="text-gray-800 flex items-start gap-2">
+                                    <MapPin size={18} className="text-green-600 shrink-0 mt-1" />
+                                    {selectedCafe.location || selectedCafe.address || 'N/A'}
+                                  </p>
+                                </div>
+
+                                <div>
+                                  <h3 className="text-sm font-semibold text-gray-600 uppercase mb-2">
+                                    City
+                                  </h3>
+                                  <p className="text-gray-800">
+                                    {selectedCafe.city || 'N/A'}
+                                  </p>
+                                </div>
+
+                                <div>
+                                  <h3 className="text-sm font-semibold text-gray-600 uppercase mb-2">
+                                    State
+                                  </h3>
+                                  <p className="text-gray-800">
+                                    {selectedCafe.state || 'N/A'}
+                                  </p>
+                                </div>
+
+                                <div>
+                                  <h3 className="text-sm font-semibold text-gray-600 uppercase mb-2">
+                                    Pincode
+                                  </h3>
+                                  <p className="text-gray-800">
+                                    {selectedCafe.pincode || 'N/A'}
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                  <h3 className="text-sm font-semibold text-gray-600 uppercase mb-2">
+                                    Latitude
+                                  </h3>
+                                  <p className="text-gray-800">
+                                    {selectedCafe.latitude || 'N/A'}
+                                  </p>
+                                </div>
+
+                                <div>
+                                  <h3 className="text-sm font-semibold text-gray-600 uppercase mb-2">
+                                    Longitude
+                                  </h3>
+                                  <p className="text-gray-800">
+                                    {selectedCafe.longitude || 'N/A'}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Close Button */}
+                            <button
+                              onClick={() => setSelectedCafe(null)}
+                              className="w-full mt-6 bg-gray-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-gray-700 transition-all duration-300"
+                            >
+                              Close
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="bg-green-50 rounded-lg p-8 text-center border border-green-200">
