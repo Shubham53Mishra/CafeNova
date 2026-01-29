@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Star, MapPin, Clock, AlertCircle, CheckCircle } from 'lucide-react';
+import { Star, MapPin, Clock, AlertCircle, CheckCircle, MapPinned } from 'lucide-react';
 import Navbar from '../../components/Navbar';
+import { Country, State, City } from 'country-state-city';
 
 const API_URL = 'https://cafenova.onrender.com';
 
@@ -21,11 +22,14 @@ const Vendors = () => {
   const [success, setSuccess] = useState('');
   const [vendorProfile, setVendorProfile] = useState(null);
   const [profileLoading, setProfileLoading] = useState(false);
-  const [showRegistrationForm, setShowRegistrationForm] = useState(false);
+  const [showRegistrationForm, setShowRegistrationForm] = useState(true);
   const [cafes, setCafes] = useState([]);
   const [cafesLoading, setCafesLoading] = useState(false);
-
-  // Check if vendor is logged in
+  const [gettingLocation, setGettingLocation] = useState(false);
+  const [states, setStates] = useState([]);
+  const [cities, setCities] = useState([]);
+  const [countries, setCountries] = useState([]);
+  const [countryCode, setCountryCode] = useState('IN');
   useEffect(() => {
     const vendorToken = localStorage.getItem('vendorToken');
     if (vendorToken) {
@@ -207,6 +211,78 @@ const Vendors = () => {
     setCafeImages(files);
   };
 
+  // Initialize countries and states on component mount
+  useEffect(() => {
+    const allCountries = Country.getAllCountries();
+    setCountries(allCountries || []);
+    
+    // Load states for India by default
+    const allStates = State.getStatesOfCountry('IN');
+    setStates(allStates || []);
+  }, []);
+
+  // Handle state change and update cities
+  const handleStateChange = (e) => {
+    const stateName = e.target.value;
+    setState(stateName);
+    
+    // Get cities for selected state
+    if (stateName) {
+      const citiesList = City.getCitiesOfState('IN', stateName);
+      setCities(citiesList || []);
+      setCity(''); // Reset city when state changes
+    } else {
+      setCities([]);
+    }
+  };
+
+  // Handle country change and update states
+  const handleCountryChange = (e) => {
+    const countryCode = e.target.value;
+    setCountryCode(countryCode);
+    setState(''); // Reset state
+    setCity(''); // Reset city
+    
+    // Get states for selected country
+    if (countryCode) {
+      const countryStates = State.getStatesOfCountry(countryCode);
+      setStates(countryStates || []);
+    } else {
+      setStates([]);
+    }
+  };
+
+  // Handle city change
+  const handleCityChange = (e) => {
+    setCity(e.target.value);
+  };
+
+  // Get current location and auto-fill latitude/longitude
+  const handleGetLocation = () => {
+    setGettingLocation(true);
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          setLatitude(lat.toString());
+          setLongitude(lng.toString());
+          setSuccess('Location auto-filled successfully!');
+          setTimeout(() => setSuccess(''), 3000);
+          setGettingLocation(false);
+        },
+        (error) => {
+          setError('Unable to get your location. Please check your browser permissions.');
+          console.error('Geolocation error:', error);
+          setGettingLocation(false);
+        }
+      );
+    } else {
+      setError('Geolocation is not supported by your browser.');
+      setGettingLocation(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
@@ -342,33 +418,66 @@ const Vendors = () => {
                         />
                       </div>
 
-                      {/* City, State, Pincode */}
-                      <div className="grid grid-cols-3 gap-4">
+                      {/* Country, State, City, Pincode */}
+                      <div className="grid grid-cols-2 gap-4">
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
-                            City
+                            Country
                           </label>
-                          <input
-                            type="text"
-                            value={city}
-                            onChange={(e) => setCity(e.target.value)}
-                            placeholder="City"
+                          <select
+                            value={countryCode}
+                            onChange={handleCountryChange}
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent"
                             required
-                          />
+                          >
+                            <option value="">Select Country</option>
+                            {countries.map((country) => (
+                              <option key={country.isoCode} value={country.isoCode}>
+                                {country.name}
+                              </option>
+                            ))}
+                          </select>
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
                             State
                           </label>
-                          <input
-                            type="text"
+                          <select
                             value={state}
-                            onChange={(e) => setState(e.target.value)}
-                            placeholder="State (e.g., KA)"
-                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent"
+                            onChange={handleStateChange}
+                            disabled={!countryCode}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
                             required
-                          />
+                          >
+                            <option value="">Select State</option>
+                            {states.map((st) => (
+                              <option key={st.isoCode} value={st.isoCode}>
+                                {st.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">
+                            City
+                          </label>
+                          <select
+                            value={city}
+                            onChange={handleCityChange}
+                            disabled={!state}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+                            required
+                          >
+                            <option value="">Select City</option>
+                            {cities.map((c) => (
+                              <option key={c.name} value={c.name}>
+                                {c.name}
+                              </option>
+                            ))}
+                          </select>
                         </div>
                         <div>
                           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -378,7 +487,7 @@ const Vendors = () => {
                             type="text"
                             value={pincode}
                             onChange={(e) => setPincode(e.target.value)}
-                            placeholder="Pincode"
+                            placeholder="Enter pincode"
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent"
                             required
                           />
@@ -415,6 +524,20 @@ const Vendors = () => {
                             required
                           />
                         </div>
+                      </div>
+
+                      {/* Get Current Location Button */}
+                      <div>
+                        <button
+                          type="button"
+                          onClick={handleGetLocation}
+                          disabled={gettingLocation}
+                          className="w-full bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <MapPinned size={18} />
+                          {gettingLocation ? 'Getting Location...' : 'Auto-fill Current Location'}
+                        </button>
+                        <p className="text-xs text-gray-500 mt-1">Click to auto-fill latitude & longitude from your current location</p>
                       </div>
 
                       {/* Cafe Images */}
