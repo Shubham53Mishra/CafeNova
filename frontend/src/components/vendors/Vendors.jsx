@@ -585,7 +585,7 @@ const Vendors = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {cafes.map((cafe) => (
                         <div
-                          key={cafe.id}
+                          key={cafe._id}
                           className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer border border-gray-200"
                         >
                           {/* Cafe Image */}
@@ -618,7 +618,7 @@ const Vendors = () => {
                               </p>
                             </div>
                             <button
-                              onClick={() => navigate(`/vendors/cafe/${cafe.id}`)}
+                              onClick={() => navigate(`/vendors/cafe/${cafe._id}`)}
                               className="w-full bg-green-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-700 transition-all duration-300"
                             >
                               View Details

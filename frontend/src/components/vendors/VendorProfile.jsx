@@ -25,7 +25,7 @@ const VendorProfile = () => {
   // Set selected cafe when cafeId changes or cafes load
   useEffect(() => {
     if (cafeId && cafes.length > 0) {
-      const cafe = cafes.find((c) => c.id === cafeId);
+      const cafe = cafes.find((c) => c._id === cafeId);
       setSelectedCafe(cafe);
       if (!cafe) {
         setSelectedCafe(cafes[0]);
@@ -203,13 +203,13 @@ const VendorProfile = () => {
                 <div className="sticky top-0 max-h-[calc(100vh-200px)] overflow-y-auto">
                   {cafes.map((cafe) => (
                     <button
-                      key={cafe.id}
+                      key={cafe._id}
                       onClick={() => {
                         setSelectedCafe(cafe);
-                        navigate(`/vendors/cafe/${cafe.id}`);
+                        navigate(`/vendors/cafe/${cafe._id}`);
                       }}
                       className={`w-full text-left p-4 border-b transition-all ${
-                        selectedCafe?.id === cafe.id
+                        selectedCafe?._id === cafe._id
                           ? 'bg-green-100 border-l-4 border-l-green-700'
                           : 'hover:bg-gray-100'
                       }`}
