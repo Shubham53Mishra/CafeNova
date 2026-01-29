@@ -288,26 +288,137 @@ const Vendors = () => {
     <div className="min-h-screen bg-gray-50">
       <Navbar />
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Check if vendor is logged in */}
-        {!isLoggedIn ? (
-          // Show login prompt
-          <div className="flex items-center justify-center min-h-[calc(100vh-120px)] px-4">
-            <div className="w-full max-w-2xl bg-white rounded-lg shadow-lg p-8 text-center">
-              <h2 className="text-3xl font-bold text-green-700 mb-4">
-                Vendor Dashboard
-              </h2>
-              <p className="text-gray-600 mb-6">
-                Please log in to access your vendor dashboard and register cafes.
-              </p>
-              <a href="/vendors/login" className="inline-block bg-green-700 text-white font-bold py-2 px-6 rounded-lg hover:bg-green-800 transition-all">
-                Login Here
-              </a>
+      {/* Show Cafe Details View when cafe is selected */}
+      {selectedCafe ? (
+        <div className="min-h-screen bg-gray-50">
+          {/* Header */}
+          <div className="bg-white shadow-lg">
+            <div className="max-w-6xl mx-auto px-4 py-6">
+              <button
+                onClick={() => setSelectedCafe(null)}
+                className="inline-flex items-center gap-2 text-green-600 hover:text-green-700 font-semibold mb-4 transition-all"
+              >
+                ← Back to Cafes
+              </button>
+              <h1 className="text-4xl font-bold text-gray-800">{selectedCafe.name}</h1>
             </div>
           </div>
-        ) : (
-          // Show Vendor Dashboard if logged in
-          <div>
+
+          {/* Main Content */}
+          <div className="max-w-6xl mx-auto px-4 py-12">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Left Column - Image */}
+              <div className="lg:col-span-2">
+                <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+                  {selectedCafe.image ? (
+                    <img
+                      src={selectedCafe.image}
+                      alt={selectedCafe.name}
+                      className="w-full h-96 object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-96 flex items-center justify-center bg-linear-to-br from-green-100 to-green-200">
+                      <MapPin size={64} className="text-green-700 opacity-30" />
+                    </div>
+                  )}
+                </div>
+
+                {/* Description Section */}
+                <div className="bg-white rounded-lg shadow-lg p-8 mt-8">
+                  <h2 className="text-2xl font-bold text-gray-800 mb-4">About This Cafe</h2>
+                  <p className="text-gray-700 text-lg leading-relaxed">
+                    {selectedCafe.description || 'No description available'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Right Column - Details */}
+              <div className="lg:col-span-1">
+                {/* Location Card */}
+                <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+                  <h3 className="text-xl font-bold text-green-700 mb-4 flex items-center gap-2">
+                    <MapPin size={24} />
+                    Location
+                  </h3>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-xs font-semibold text-gray-500 uppercase">Address</p>
+                      <p className="text-gray-800">
+                        {selectedCafe.location || selectedCafe.address || 'N/A'}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-gray-500 uppercase">City</p>
+                      <p className="text-gray-800 font-medium">
+                        {selectedCafe.city || 'N/A'}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-gray-500 uppercase">State</p>
+                      <p className="text-gray-800 font-medium">
+                        {selectedCafe.state || 'N/A'}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-gray-500 uppercase">Pincode</p>
+                      <p className="text-gray-800 font-medium">
+                        {selectedCafe.pincode || 'N/A'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Coordinates Card */}
+                <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+                  <h3 className="text-xl font-bold text-green-700 mb-4">Coordinates</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-xs font-semibold text-gray-500 uppercase">Latitude</p>
+                      <p className="text-gray-800 font-mono">
+                        {selectedCafe.latitude || 'N/A'}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-gray-500 uppercase">Longitude</p>
+                      <p className="text-gray-800 font-mono">
+                        {selectedCafe.longitude || 'N/A'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action Button */}
+                <button
+                  onClick={() => setSelectedCafe(null)}
+                  className="w-full bg-green-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-700 transition-all duration-300 shadow-lg"
+                >
+                  Close Details
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          {/* Check if vendor is logged in */}
+          {!isLoggedIn ? (
+            // Show login prompt
+            <div className="flex items-center justify-center min-h-[calc(100vh-120px)] px-4">
+              <div className="w-full max-w-2xl bg-white rounded-lg shadow-lg p-8 text-center">
+                <h2 className="text-3xl font-bold text-green-700 mb-4">
+                  Vendor Dashboard
+                </h2>
+                <p className="text-gray-600 mb-6">
+                  Please log in to access your vendor dashboard and register cafes.
+                </p>
+                <a href="/vendors/login" className="inline-block bg-green-700 text-white font-bold py-2 px-6 rounded-lg hover:bg-green-800 transition-all">
+                  Login Here
+                </a>
+              </div>
+            </div>
+          ) : (
+            // Show Vendor Dashboard if logged in
+            <div>
             {profileLoading ? (
               <div className="text-center py-12">
                 <p className="text-gray-600 text-lg">Loading vendor profile...</p>
@@ -642,121 +753,10 @@ const Vendors = () => {
                 <p className="text-gray-600 text-lg">Failed to load vendor profile</p>
               </div>
             )}
-
-            {/* Full Page Cafe Details View */}
-            {selectedCafe && (
-              <div className="min-h-screen bg-gray-50">
-                {/* Header */}
-                <div className="bg-white shadow-lg">
-                  <div className="max-w-6xl mx-auto px-4 py-6">
-                    <button
-                      onClick={() => setSelectedCafe(null)}
-                      className="inline-flex items-center gap-2 text-green-600 hover:text-green-700 font-semibold mb-4 transition-all"
-                    >
-                      ← Back to Cafes
-                    </button>
-                    <h1 className="text-4xl font-bold text-gray-800">{selectedCafe.name}</h1>
-                  </div>
-                </div>
-
-                {/* Main Content */}
-                <div className="max-w-6xl mx-auto px-4 py-12">
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Left Column - Image */}
-                    <div className="lg:col-span-2">
-                      <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-                        {selectedCafe.image ? (
-                          <img
-                            src={selectedCafe.image}
-                            alt={selectedCafe.name}
-                            className="w-full h-96 object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-96 flex items-center justify-center bg-linear-to-br from-green-100 to-green-200">
-                            <MapPin size={64} className="text-green-700 opacity-30" />
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Description Section */}
-                      <div className="bg-white rounded-lg shadow-lg p-8 mt-8">
-                        <h2 className="text-2xl font-bold text-gray-800 mb-4">About This Cafe</h2>
-                        <p className="text-gray-700 text-lg leading-relaxed">
-                          {selectedCafe.description || 'No description available'}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Right Column - Details */}
-                    <div className="lg:col-span-1">
-                      {/* Location Card */}
-                      <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-                        <h3 className="text-xl font-bold text-green-700 mb-4 flex items-center gap-2">
-                          <MapPin size={24} />
-                          Location
-                        </h3>
-                        <div className="space-y-3">
-                          <div>
-                            <p className="text-xs font-semibold text-gray-500 uppercase">Address</p>
-                            <p className="text-gray-800">
-                              {selectedCafe.location || selectedCafe.address || 'N/A'}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-xs font-semibold text-gray-500 uppercase">City</p>
-                            <p className="text-gray-800 font-medium">
-                              {selectedCafe.city || 'N/A'}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-xs font-semibold text-gray-500 uppercase">State</p>
-                            <p className="text-gray-800 font-medium">
-                              {selectedCafe.state || 'N/A'}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-xs font-semibold text-gray-500 uppercase">Pincode</p>
-                            <p className="text-gray-800 font-medium">
-                              {selectedCafe.pincode || 'N/A'}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Coordinates Card */}
-                      <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-                        <h3 className="text-xl font-bold text-green-700 mb-4">Coordinates</h3>
-                        <div className="space-y-3">
-                          <div>
-                            <p className="text-xs font-semibold text-gray-500 uppercase">Latitude</p>
-                            <p className="text-gray-800 font-mono">
-                              {selectedCafe.latitude || 'N/A'}
-                            </p>
-                          </div>
-                          <div>
-                            <p className="text-xs font-semibold text-gray-500 uppercase">Longitude</p>
-                            <p className="text-gray-800 font-mono">
-                              {selectedCafe.longitude || 'N/A'}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Action Button */}
-                      <button
-                        onClick={() => setSelectedCafe(null)}
-                        className="w-full bg-green-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-700 transition-all duration-300 shadow-lg"
-                      >
-                        Close Details
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
