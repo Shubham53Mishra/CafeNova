@@ -532,7 +532,7 @@ const Vendors = () => {
                           type="button"
                           onClick={handleGetLocation}
                           disabled={gettingLocation}
-                          className="w-full bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="w-full bg-green-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-700 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                           <MapPinned size={18} />
                           {gettingLocation ? 'Getting Location...' : 'Auto-fill Current Location'}
