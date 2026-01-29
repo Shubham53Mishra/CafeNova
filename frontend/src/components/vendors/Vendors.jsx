@@ -618,7 +618,7 @@ const Vendors = () => {
                               </p>
                             </div>
                             <button
-                              onClick={() => navigate(`/vendors/cafe/${cafe._id}`)}
+                              onClick={() => navigate(`/vendors/cafe/${cafe.id}`)}
                               className="w-full bg-green-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-700 transition-all duration-300"
                             >
                               View Details
