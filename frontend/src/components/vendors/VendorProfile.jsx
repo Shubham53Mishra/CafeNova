@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MapPin, Mail, Phone, Star, ArrowLeft } from 'lucide-react';
+import { MapPin, Mail, Phone, Star, ArrowLeft, Trash2 } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
 
@@ -11,6 +11,7 @@ const VendorProfile = () => {
   const [cafe, setCafe] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     const vendorToken = localStorage.getItem('vendorToken');
@@ -47,6 +48,36 @@ const VendorProfile = () => {
       console.error('Error:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const deleteCafe = async () => {
+    if (!window.confirm('Are you sure you want to delete this cafe? This action cannot be undone.')) {
+      return;
+    }
+
+    setDeleting(true);
+    try {
+      const vendorToken = localStorage.getItem('vendorToken');
+      const response = await fetch(`${API_URL}/api/vendor/cafes/${cafeId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${vendorToken}`,
+        },
+      });
+
+      if (response.ok) {
+        alert('Cafe deleted successfully');
+        navigate('/vendors');
+      } else {
+        setError('Failed to delete cafe');
+      }
+    } catch (err) {
+      setError('Error deleting cafe: ' + err.message);
+      console.error('Error:', err);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -93,6 +124,16 @@ const VendorProfile = () => {
         >
           <ArrowLeft size={20} />
           Back to Dashboard
+        </button>
+
+        {/* Delete Button */}
+        <button
+          onClick={deleteCafe}
+          disabled={deleting}
+          className="flex items-center gap-2 text-red-600 hover:text-red-800 mb-8 font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <Trash2 size={20} />
+          {deleting ? 'Deleting...' : 'Delete Cafe'}
         </button>
 
         {/* Cafe Details Card */}
