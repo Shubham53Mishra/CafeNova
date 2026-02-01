@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, Menu, BarChart3, Users, Settings, LogOut, ChevronDown, Search } from 'lucide-react';
+import { Plus, Edit2, Trash2, Menu, BarChart3, Users, Settings, LogOut, ChevronDown, Search, ShoppingCart, AlertCircle, DollarSign, Ticket, FileText, UtensilsCrossed } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
 
@@ -108,25 +108,119 @@ const VendorDashboard = () => {
 
           {/* Main Navigation */}
           <nav className="p-4 space-y-2">
-            {[
-              { icon: BarChart3, label: 'Dashboard', id: 'overview' },
-              { icon: Menu, label: 'Menu Items', id: 'menu' },
-              { icon: Users, label: 'Orders', id: 'orders' },
-              { icon: Settings, label: 'Settings', id: 'settings' }
-            ].map((item) => (
-              <button
-                key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${
-                  activeTab === item.id
-                    ? 'bg-green-100 text-green-700'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                <item.icon size={20} />
-                {sidebarOpen && <span className="font-medium">{item.label}</span>}
-              </button>
-            ))}
+            {/* Dashboard */}
+            <button
+              onClick={() => setActiveTab('overview')}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${
+                activeTab === 'overview'
+                  ? 'bg-green-100 text-green-700'
+                  : 'text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              <BarChart3 size={20} />
+              {sidebarOpen && <span className="font-medium">Dashboard</span>}
+            </button>
+
+            {/* Live Order */}
+            <button
+              onClick={() => setActiveTab('live-order')}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${
+                activeTab === 'live-order'
+                  ? 'bg-green-100 text-green-700'
+                  : 'text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              <ShoppingCart size={20} />
+              {sidebarOpen && <span className="font-medium">Live Order</span>}
+            </button>
+
+            {/* Order */}
+            <button
+              onClick={() => setActiveTab('orders')}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${
+                activeTab === 'orders'
+                  ? 'bg-green-100 text-green-700'
+                  : 'text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              <FileText size={20} />
+              {sidebarOpen && <span className="font-medium">Order</span>}
+            </button>
+
+            {sidebarOpen && (
+              <>
+                {/* Users Section */}
+                <div className="mt-6 pt-4 border-t border-gray-200">
+                  <p className="text-xs font-semibold text-gray-500 uppercase px-4 mb-2">Users</p>
+                  <button className="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition text-sm">
+                    <Users size={18} />
+                    <span>Employees</span>
+                  </button>
+                  <button className="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition text-sm">
+                    <Users size={18} />
+                    <span>Drivers</span>
+                  </button>
+                </div>
+
+                {/* Admin Section */}
+                <div className="mt-6 pt-4 border-t border-gray-200">
+                  <p className="text-xs font-semibold text-gray-500 uppercase px-4 mb-2">Admin</p>
+                  
+                  {/* Store */}
+                  <button className="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition text-sm">
+                    <UtensilsCrossed size={18} />
+                    <span>Store</span>
+                  </button>
+
+                  {/* Food Menu with submenu */}
+                  <div>
+                    <button
+                      onClick={() => setActiveTab('menu')}
+                      className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg transition text-sm ${
+                        activeTab === 'menu'
+                          ? 'bg-green-100 text-green-700 font-medium'
+                          : 'text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      <Menu size={18} />
+                      <span>Food Menu</span>
+                    </button>
+                    {activeTab === 'menu' && (
+                      <div className="ml-8 space-y-1 mt-1">
+                        <p className="text-xs text-gray-500 px-2 py-1 font-medium">Menu Items</p>
+                        <p className="text-xs text-gray-500 px-2 py-1 font-medium">Additives</p>
+                        <p className="text-xs text-gray-500 px-2 py-1 font-medium">Extras</p>
+                        <p className="text-xs text-gray-500 px-2 py-1 font-medium">Variant</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Finance */}
+                  <button className="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition text-sm">
+                    <DollarSign size={18} />
+                    <span>Finance</span>
+                  </button>
+
+                  {/* Subscription */}
+                  <button className="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition text-sm">
+                    <AlertCircle size={18} />
+                    <span>Subscription</span>
+                  </button>
+
+                  {/* Coupon */}
+                  <button className="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition text-sm">
+                    <Ticket size={18} />
+                    <span>Coupon</span>
+                  </button>
+
+                  {/* Pages */}
+                  <button className="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition text-sm">
+                    <FileText size={18} />
+                    <span>Pages</span>
+                  </button>
+                </div>
+              </>
+            )}
           </nav>
 
           {/* Cafes List */}
