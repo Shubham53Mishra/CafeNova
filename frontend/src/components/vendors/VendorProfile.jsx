@@ -219,4 +219,5 @@ const VendorProfile = () => {
     </div>
   );
 };
+
 export default VendorProfile;
