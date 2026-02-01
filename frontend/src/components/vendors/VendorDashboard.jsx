@@ -9,6 +9,7 @@ const VendorDashboard = () => {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [vendorProfile, setVendorProfile] = useState(null);
+  const [cafes, setCafes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -25,18 +26,33 @@ const VendorDashboard = () => {
 
   const fetchVendorData = async (token) => {
     try {
-      const profileRes = await fetch(`${API_URL}/api/vendor/profile`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-      });
+      const [profileRes, cafesRes] = await Promise.all([
+        fetch(`${API_URL}/api/vendor/profile`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+        }),
+        fetch(`${API_URL}/api/vendor/cafes`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+        })
+      ]);
 
       const profileData = await profileRes.json();
+      const cafesData = await cafesRes.json();
 
       if (profileRes.ok) {
         setVendorProfile(profileData);
+      }
+
+      if (cafesRes.ok) {
+        const cafesList = cafesData.data || cafesData.cafes || [];
+        setCafes(cafesList);
       }
     } catch (err) {
       console.error('Error fetching data:', err);
@@ -228,31 +244,81 @@ const VendorDashboard = () => {
         <div className="flex-1 overflow-y-auto">
           {activeTab === 'overview' && (
             <div className="p-8">
-              <div className="mb-8">
-                <h1 className="text-4xl font-bold text-gray-800 mb-2">Dashboard</h1>
-                <p className="text-gray-600">Welcome back, {vendorProfile?.vendor?.name}</p>
+              <div className="flex justify-between items-start mb-8">
+                <div>
+                  <h1 className="text-4xl font-bold text-gray-800 mb-2">Dashboard</h1>
+                  <p className="text-gray-600">Welcome back, {vendorProfile?.vendor?.name}</p>
+                </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                {/* Stats Cards */}
-                {[
-                  { label: 'Total Orders', value: '1,234', color: 'bg-blue-50', textColor: 'text-blue-700' },
-                  { label: 'Revenue', value: '₹45,000', color: 'bg-green-50', textColor: 'text-green-700' },
-                  { label: 'Active Menus', value: '8', color: 'bg-purple-50', textColor: 'text-purple-700' },
-                  { label: 'Avg Rating', value: '4.5', color: 'bg-orange-50', textColor: 'text-orange-700' }
-                ].map((stat, idx) => (
-                  <div key={idx} className={`${stat.color} rounded-lg p-6`}>
-                    <p className="text-gray-600 text-sm mb-2">{stat.label}</p>
-                    <p className={`${stat.textColor} text-3xl font-bold`}>{stat.value}</p>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Left Section - Stats */}
+                <div className="lg:col-span-2">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                    {/* Stats Cards */}
+                    {[
+                      { label: 'Total Orders', value: '1,234', color: 'bg-blue-50', textColor: 'text-blue-700' },
+                      { label: 'Revenue', value: '₹45,000', color: 'bg-green-50', textColor: 'text-green-700' },
+                      { label: 'Active Menus', value: '8', color: 'bg-purple-50', textColor: 'text-purple-700' },
+                      { label: 'Avg Rating', value: '4.5', color: 'bg-orange-50', textColor: 'text-orange-700' }
+                    ].map((stat, idx) => (
+                      <div key={idx} className={`${stat.color} rounded-lg p-6`}>
+                        <p className="text-gray-600 text-sm mb-2">{stat.label}</p>
+                        <p className={`${stat.textColor} text-3xl font-bold`}>{stat.value}</p>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
 
-              <div className="bg-white rounded-lg shadow-lg p-8">
-                <h2 className="text-2xl font-bold text-gray-800 mb-6">Vendor Profile</h2>
-                <div className="space-y-3 text-sm">
-                  <p><span className="font-medium text-gray-600">Name:</span> {vendorProfile?.vendor?.name || 'N/A'}</p>
-                  <p><span className="font-medium text-gray-600">Email:</span> {vendorProfile?.vendor?.email || 'N/A'}</p>
+                  <div className="bg-white rounded-lg shadow-lg p-8">
+                    <h2 className="text-2xl font-bold text-gray-800 mb-6">Vendor Profile</h2>
+                    <div className="space-y-3 text-sm">
+                      <p><span className="font-medium text-gray-600">Name:</span> {vendorProfile?.vendor?.name || 'N/A'}</p>
+                      <p><span className="font-medium text-gray-600">Email:</span> {vendorProfile?.vendor?.email || 'N/A'}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right Section - Cafes */}
+                <div>
+                  <div className="bg-white rounded-lg shadow-lg p-6">
+                    <h2 className="text-2xl font-bold text-gray-800 mb-6">Your Cafes</h2>
+                    <div className="space-y-4">
+                      {cafes && cafes.length > 0 ? (
+                        cafes.map((cafe) => (
+                          <div 
+                            key={cafe._id}
+                            className="text-center cursor-pointer hover:opacity-80 transition"
+                            onClick={() => navigate(`/vendors/cafe/${cafe._id}`)}
+                          >
+                            {/* Rounded First Image */}
+                            <div className="mb-3 w-full h-40 rounded-full overflow-hidden flex items-center justify-center bg-gray-200 border-4 border-green-200 hover:border-green-400 transition">
+                              {cafe.image ? (
+                                <img 
+                                  src={cafe.image} 
+                                  alt={cafe.name}
+                                  className="w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div className="text-gray-400 text-center">
+                                  <p className="text-sm">No Image</p>
+                                </div>
+                              )}
+                            </div>
+                            {/* Cafe Name */}
+                            <p className="font-semibold text-gray-800">{cafe.name}</p>
+                            <p className="text-xs text-gray-500">{cafe.city || 'City'}</p>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="text-center py-8">
+                          <p className="text-gray-500">No cafes registered yet</p>
+                          <button className="mt-4 bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700 transition">
+                            Register Cafe
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
