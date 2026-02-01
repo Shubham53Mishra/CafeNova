@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Star, MapPin, Clock, AlertCircle, CheckCircle, MapPinned } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import Navbar from '../../components/Navbar';
 import { Country, State, City } from 'country-state-city';
 
 const API_URL = 'https://cafenova.onrender.com';
 
 const Vendors = () => {
-  const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [cafeName, setCafeName] = useState('');
   const [cafeDescription, setCafeDescription] = useState('');
@@ -503,69 +501,7 @@ const Vendors = () => {
                   </div>
                 )}
 
-                {/* Cafes List */}
-                {cafesLoading ? (
-                  <div className="text-center py-12">
-                    <p className="text-gray-600 text-lg">Loading cafes...</p>
-                  </div>
-                ) : cafes && cafes.length > 0 ? (
-                  <div>
-                    <h2 className="text-3xl font-bold text-gray-800 mb-8">
-                      Your Cafes
-                    </h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                      {cafes.map((cafe) => (
-                        <div
-                          key={cafe._id}
-                          className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:scale-105 cursor-pointer border border-gray-200"
-                        >
-                          {/* Cafe Image */}
-                          <div className="relative overflow-hidden h-48 bg-gray-200">
-                            {cafe.image ? (
-                              <img
-                                src={cafe.image}
-                                alt={cafe.name}
-                                className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
-                              />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center bg-linear-to-br from-green-100 to-green-200">
-                                <MapPin size={48} className="text-green-700 opacity-50" />
-                              </div>
-                            )}
-                          </div>
 
-                          {/* Cafe Info */}
-                          <div className="p-6">
-                            <h3 className="text-xl font-bold text-green-700 mb-2">
-                              {cafe.name}
-                            </h3>
-                            <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                              {cafe.description || 'No description available'}
-                            </p>
-                            <div className="flex items-start gap-2 text-gray-700 mb-4">
-                              <MapPin size={18} className="text-green-600 shrink-0 mt-0.5" />
-                              <p className="text-sm">
-                                {cafe.location || cafe.address || 'No address provided'}
-                              </p>
-                            </div>
-                            <button
-                              onClick={() => navigate(`/vendors/cafe/${cafe._id}`)}
-                              className="w-full bg-green-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-700 transition-all duration-300"
-                            >
-                              View Details
-                            </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="bg-green-50 rounded-lg p-8 text-center border border-green-200">
-                    <p className="text-green-600 text-lg font-medium">
-                      No cafes registered yet. Click "Register New Cafe" to get started!
-                    </p>
-                  </div>
-                )}
               </div>
             ) : (
               <div className="text-center py-12">
