@@ -167,7 +167,14 @@ const VendorDashboard = () => {
                   <p className="text-xs font-semibold text-gray-500 uppercase px-4 mb-2">Admin</p>
                   
                   {/* Store */}
-                  <button className="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-gray-700 hover:bg-gray-100 transition text-sm">
+                  <button
+                    onClick={() => setActiveTab('store')}
+                    className={`w-full flex items-center gap-3 px-4 py-2 rounded-lg transition text-sm ${
+                      activeTab === 'store'
+                        ? 'bg-green-100 text-green-700 font-medium'
+                        : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
                     <UtensilsCrossed size={18} />
                     <span>Store</span>
                   </button>
@@ -351,6 +358,66 @@ const VendorDashboard = () => {
               <div className="bg-white rounded-lg shadow-lg p-12 text-center">
                 <p className="text-gray-600 text-lg">No orders yet</p>
               </div>
+            </div>
+          )}
+
+          {activeTab === 'store' && (
+            <div className="p-8">
+              <h1 className="text-4xl font-bold text-gray-800 mb-8">Store</h1>
+              {selectedCafe ? (
+                <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+                  {/* Cafe Image */}
+                  {selectedCafe.image && (
+                    <div className="w-full h-64 overflow-hidden">
+                      <img
+                        src={selectedCafe.image}
+                        alt={selectedCafe.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+
+                  {/* Cafe Content */}
+                  <div className="p-8">
+                    <h2 className="text-3xl font-bold text-green-700 mb-4">{selectedCafe.name}</h2>
+                    <p className="text-gray-700 text-lg mb-8">{selectedCafe.description || 'No description available'}</p>
+
+                    {/* Location Details */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                      <div className="bg-gray-50 rounded-lg p-6">
+                        <h3 className="text-lg font-bold text-gray-800 mb-4">Location Details</h3>
+                        <div className="space-y-3">
+                          <p><span className="font-medium text-gray-600">Address:</span> {selectedCafe.address || 'N/A'}</p>
+                          <p><span className="font-medium text-gray-600">City:</span> {selectedCafe.city || 'N/A'}</p>
+                          <p><span className="font-medium text-gray-600">State:</span> {selectedCafe.state || 'N/A'}</p>
+                          <p><span className="font-medium text-gray-600">Pincode:</span> {selectedCafe.pincode || 'N/A'}</p>
+                        </div>
+                      </div>
+
+                      <div className="bg-blue-50 rounded-lg p-6">
+                        <h3 className="text-lg font-bold text-gray-800 mb-4">Coordinates</h3>
+                        <div className="space-y-3">
+                          <p><span className="font-medium text-gray-600">Latitude:</span> <span className="font-mono">{selectedCafe.latitude || 'N/A'}</span></p>
+                          <p><span className="font-medium text-gray-600">Longitude:</span> <span className="font-mono">{selectedCafe.longitude || 'N/A'}</span></p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Edit Button */}
+                    <button
+                      onClick={() => navigate(`/vendors/cafe/${selectedCafe._id}`)}
+                      className="bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition flex items-center gap-2"
+                    >
+                      <Edit2 size={20} />
+                      Edit Store Details
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-white rounded-lg shadow-lg p-12 text-center">
+                  <p className="text-gray-600 text-lg">No cafe selected</p>
+                </div>
+              )}
             </div>
           )}
 
