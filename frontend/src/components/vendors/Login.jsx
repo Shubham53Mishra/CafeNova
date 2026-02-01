@@ -38,7 +38,7 @@ const Login = () => {
         // Store vendor email
         localStorage.setItem('vendorEmail', email);
         setTimeout(() => {
-          window.location.href = '/vendors';
+          window.location.href = '/vendors/dashboard';
         }, 1500);
       } else {
         // Show detailed error message from backend
