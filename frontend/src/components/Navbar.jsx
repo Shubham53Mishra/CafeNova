@@ -16,10 +16,10 @@ const Navbar = () => {
     const userToken = localStorage.getItem('userToken');
     const userEmailStored = localStorage.getItem('userEmail');
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     if (vendorToken && vendorEmailStored) {
       setVendorEmail(vendorEmailStored);
-    }
-    if (userToken && userEmailStored) {
+    } else if (userToken && userEmailStored) {
       setUserEmail(userEmailStored);
     }
 
