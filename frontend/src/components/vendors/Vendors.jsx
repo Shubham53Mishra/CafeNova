@@ -25,8 +25,6 @@ const Vendors = () => {
   const [vendorProfile, setVendorProfile] = useState(null);
   const [profileLoading, setProfileLoading] = useState(false);
   const [showRegistrationForm, setShowRegistrationForm] = useState(true);
-  const [cafes, setCafes] = useState([]);
-  const [cafesLoading, setCafesLoading] = useState(false);
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
   const [countries, setCountries] = useState([]);
@@ -37,8 +35,6 @@ const Vendors = () => {
       setIsLoggedIn(true);
       // Fetch vendor profile
       fetchVendorProfile(vendorToken);
-      // Fetch cafes list
-      fetchCafes(vendorToken);
     } else {
       setIsLoggedIn(false);
     }
@@ -68,32 +64,6 @@ const Vendors = () => {
       console.error('Profile fetch error:', err);
     } finally {
       setProfileLoading(false);
-    }
-  };
-
-  // Fetch vendor cafes
-  const fetchCafes = async (token) => {
-    setCafesLoading(true);
-    try {
-      const response = await fetch(`${API_URL}/api/vendor/cafes`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setCafes(data.data || data.cafes || []);
-      } else {
-        console.error('Failed to fetch cafes:', data.message);
-      }
-    } catch (err) {
-      console.error('Error fetching cafes:', err);
-    } finally {
-      setCafesLoading(false);
     }
   };
 
