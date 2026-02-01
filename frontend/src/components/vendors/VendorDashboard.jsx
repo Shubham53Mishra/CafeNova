@@ -9,8 +9,6 @@ const VendorDashboard = () => {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [vendorProfile, setVendorProfile] = useState(null);
-  const [cafes, setCafes] = useState([]);
-  const [selectedCafe, setSelectedCafe] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -27,36 +25,18 @@ const VendorDashboard = () => {
 
   const fetchVendorData = async (token) => {
     try {
-      const [profileRes, cafesRes] = await Promise.all([
-        fetch(`${API_URL}/api/vendor/profile`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-        }),
-        fetch(`${API_URL}/api/vendor/cafes`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-        })
-      ]);
+      const profileRes = await fetch(`${API_URL}/api/vendor/profile`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
 
       const profileData = await profileRes.json();
-      const cafesData = await cafesRes.json();
 
       if (profileRes.ok) {
         setVendorProfile(profileData);
-      }
-
-      if (cafesRes.ok) {
-        const cafesList = cafesData.data || cafesData.cafes || [];
-        setCafes(cafesList);
-        if (cafesList.length > 0) {
-          setSelectedCafe(cafesList[0]);
-        }
       }
     } catch (err) {
       console.error('Error fetching data:', err);
@@ -230,28 +210,6 @@ const VendorDashboard = () => {
             )}
           </nav>
 
-          {/* Cafes List */}
-          {sidebarOpen && (
-            <div className="p-4 mt-8 border-t border-gray-200">
-              <h3 className="text-sm font-semibold text-gray-600 mb-3">Your Cafes</h3>
-              <div className="space-y-2">
-                {cafes.map((cafe) => (
-                  <button
-                    key={cafe._id}
-                    onClick={() => setSelectedCafe(cafe)}
-                    className={`w-full text-left px-3 py-2 rounded-lg text-sm transition ${
-                      selectedCafe?._id === cafe._id
-                        ? 'bg-green-50 text-green-700 font-medium'
-                        : 'text-gray-700 hover:bg-gray-100'
-                    }`}
-                  >
-                    {cafe.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
           {/* Logout */}
           <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 bg-white">
             <button
@@ -275,44 +233,28 @@ const VendorDashboard = () => {
                 <p className="text-gray-600">Welcome back, {vendorProfile?.vendor?.name}</p>
               </div>
 
-              {selectedCafe && (
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                  {/* Stats Cards */}
-                  {[
-                    { label: 'Total Orders', value: '1,234', color: 'bg-blue-50', textColor: 'text-blue-700' },
-                    { label: 'Revenue', value: '₹45,000', color: 'bg-green-50', textColor: 'text-green-700' },
-                    { label: 'Active Menus', value: '8', color: 'bg-purple-50', textColor: 'text-purple-700' },
-                    { label: 'Avg Rating', value: '4.5', color: 'bg-orange-50', textColor: 'text-orange-700' }
-                  ].map((stat, idx) => (
-                    <div key={idx} className={`${stat.color} rounded-lg p-6`}>
-                      <p className="text-gray-600 text-sm mb-2">{stat.label}</p>
-                      <p className={`${stat.textColor} text-3xl font-bold`}>{stat.value}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Cafe Overview */}
-              {selectedCafe && (
-                <div className="bg-white rounded-lg shadow-lg p-8">
-                  <h2 className="text-2xl font-bold text-gray-800 mb-6">{selectedCafe.name}</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div>
-                      <h3 className="font-semibold text-gray-700 mb-3">Cafe Information</h3>
-                      <div className="space-y-3 text-sm">
-                        <p><span className="font-medium text-gray-600">Address:</span> {selectedCafe.address || 'N/A'}</p>
-                        <p><span className="font-medium text-gray-600">City:</span> {selectedCafe.city || 'N/A'}</p>
-                        <p><span className="font-medium text-gray-600">State:</span> {selectedCafe.state || 'N/A'}</p>
-                        <p><span className="font-medium text-gray-600">Pincode:</span> {selectedCafe.pincode || 'N/A'}</p>
-                      </div>
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-700 mb-3">Description</h3>
-                      <p className="text-gray-600 text-sm">{selectedCafe.description || 'No description available'}</p>
-                    </div>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                {/* Stats Cards */}
+                {[
+                  { label: 'Total Orders', value: '1,234', color: 'bg-blue-50', textColor: 'text-blue-700' },
+                  { label: 'Revenue', value: '₹45,000', color: 'bg-green-50', textColor: 'text-green-700' },
+                  { label: 'Active Menus', value: '8', color: 'bg-purple-50', textColor: 'text-purple-700' },
+                  { label: 'Avg Rating', value: '4.5', color: 'bg-orange-50', textColor: 'text-orange-700' }
+                ].map((stat, idx) => (
+                  <div key={idx} className={`${stat.color} rounded-lg p-6`}>
+                    <p className="text-gray-600 text-sm mb-2">{stat.label}</p>
+                    <p className={`${stat.textColor} text-3xl font-bold`}>{stat.value}</p>
                   </div>
+                ))}
+              </div>
+
+              <div className="bg-white rounded-lg shadow-lg p-8">
+                <h2 className="text-2xl font-bold text-gray-800 mb-6">Vendor Profile</h2>
+                <div className="space-y-3 text-sm">
+                  <p><span className="font-medium text-gray-600">Name:</span> {vendorProfile?.vendor?.name || 'N/A'}</p>
+                  <p><span className="font-medium text-gray-600">Email:</span> {vendorProfile?.vendor?.email || 'N/A'}</p>
                 </div>
-              )}
+              </div>
             </div>
           )}
 
@@ -364,60 +306,9 @@ const VendorDashboard = () => {
           {activeTab === 'store' && (
             <div className="p-8">
               <h1 className="text-4xl font-bold text-gray-800 mb-8">Store</h1>
-              {selectedCafe ? (
-                <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-                  {/* Cafe Image */}
-                  {selectedCafe.image && (
-                    <div className="w-full h-64 overflow-hidden">
-                      <img
-                        src={selectedCafe.image}
-                        alt={selectedCafe.name}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  )}
-
-                  {/* Cafe Content */}
-                  <div className="p-8">
-                    <h2 className="text-3xl font-bold text-green-700 mb-4">{selectedCafe.name}</h2>
-                    <p className="text-gray-700 text-lg mb-8">{selectedCafe.description || 'No description available'}</p>
-
-                    {/* Location Details */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                      <div className="bg-gray-50 rounded-lg p-6">
-                        <h3 className="text-lg font-bold text-gray-800 mb-4">Location Details</h3>
-                        <div className="space-y-3">
-                          <p><span className="font-medium text-gray-600">Address:</span> {selectedCafe.address || 'N/A'}</p>
-                          <p><span className="font-medium text-gray-600">City:</span> {selectedCafe.city || 'N/A'}</p>
-                          <p><span className="font-medium text-gray-600">State:</span> {selectedCafe.state || 'N/A'}</p>
-                          <p><span className="font-medium text-gray-600">Pincode:</span> {selectedCafe.pincode || 'N/A'}</p>
-                        </div>
-                      </div>
-
-                      <div className="bg-blue-50 rounded-lg p-6">
-                        <h3 className="text-lg font-bold text-gray-800 mb-4">Coordinates</h3>
-                        <div className="space-y-3">
-                          <p><span className="font-medium text-gray-600">Latitude:</span> <span className="font-mono">{selectedCafe.latitude || 'N/A'}</span></p>
-                          <p><span className="font-medium text-gray-600">Longitude:</span> <span className="font-mono">{selectedCafe.longitude || 'N/A'}</span></p>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Edit Button */}
-                    <button
-                      onClick={() => navigate(`/vendors/cafe/${selectedCafe._id}`)}
-                      className="bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition flex items-center gap-2"
-                    >
-                      <Edit2 size={20} />
-                      Edit Store Details
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <div className="bg-white rounded-lg shadow-lg p-12 text-center">
-                  <p className="text-gray-600 text-lg">No cafe selected</p>
-                </div>
-              )}
+              <div className="bg-white rounded-lg shadow-lg p-12 text-center">
+                <p className="text-gray-600 text-lg">Store management features coming soon</p>
+              </div>
             </div>
           )}
 
@@ -425,28 +316,7 @@ const VendorDashboard = () => {
             <div className="p-8">
               <h1 className="text-4xl font-bold text-gray-800 mb-8">Settings</h1>
               <div className="bg-white rounded-lg shadow-lg p-8">
-                <h2 className="text-2xl font-bold text-gray-800 mb-6">Cafe Settings</h2>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Cafe Name</label>
-                    <input
-                      type="text"
-                      value={selectedCafe?.name || ''}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
-                    <textarea
-                      value={selectedCafe?.description || ''}
-                      rows="4"
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600"
-                    />
-                  </div>
-                  <button className="bg-green-600 text-white px-6 py-2 rounded-lg font-semibold hover:bg-green-700 transition">
-                    Save Changes
-                  </button>
-                </div>
+                <p className="text-gray-600">Settings coming soon</p>
               </div>
             </div>
           )}
