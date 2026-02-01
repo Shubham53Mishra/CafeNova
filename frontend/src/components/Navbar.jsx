@@ -204,21 +204,23 @@ const Navbar = () => {
       </div>
 
       {/* Secondary Navigation - Tabs */}
-      <div className="bg-gray-50 border-t border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-8">
-            <Link
-              to="/vendors"
-              className="py-4 px-2 border-b-4 border-green-600 text-green-700 font-semibold text-sm hover:opacity-80 transition"
-            >
-              🍽️ Dining Out
-            </Link>
-            <button className="py-4 px-2 border-b-4 border-transparent text-green-800 font-semibold text-sm hover:border-gray-300 transition">
-              🚚 Delivery
-            </button>
+      {!vendorEmail && (
+        <div className="bg-gray-50 border-t border-gray-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center gap-8">
+              <Link
+                to="/vendors"
+                className="py-4 px-2 border-b-4 border-green-600 text-green-700 font-semibold text-sm hover:opacity-80 transition"
+              >
+                🍽️ Dining Out
+              </Link>
+              <button className="py-4 px-2 border-b-4 border-transparent text-green-800 font-semibold text-sm hover:border-gray-300 transition">
+                🚚 Delivery
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </nav>
   );
 };
