@@ -8,6 +8,7 @@ import VendorLogin from './components/vendors/Login';
 import VendorSignup from './components/vendors/Signup';
 import Vendors from './components/vendors/Vendors';
 import VendorProfile from './components/vendors/VendorProfile';
+import VendorDashboard from './components/vendors/VendorDashboard';
 
 const App = () => {
   return (
@@ -20,6 +21,7 @@ const App = () => {
         {/* Vendor Routes */}
         <Route path="/vendors/login" element={<VendorLogin />} />
         <Route path="/vendors/signup" element={<VendorSignup />} />
+        <Route path="/vendors/dashboard" element={<VendorDashboard />} />
         <Route path="/vendors" element={<Vendors />} />
         <Route path="/vendors/cafe/:cafeId" element={<VendorProfile />} />
         

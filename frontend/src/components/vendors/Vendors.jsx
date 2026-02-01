@@ -27,7 +27,6 @@ const Vendors = () => {
   const [showRegistrationForm, setShowRegistrationForm] = useState(true);
   const [cafes, setCafes] = useState([]);
   const [cafesLoading, setCafesLoading] = useState(false);
-  const [gettingLocation, setGettingLocation] = useState(false);
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
   const [countries, setCountries] = useState([]);
@@ -259,31 +258,7 @@ const Vendors = () => {
     setCity(e.target.value);
   };
 
-  // Get current location and auto-fill latitude/longitude
-  const handleGetLocation = () => {
-    setGettingLocation(true);
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const lat = position.coords.latitude;
-          const lng = position.coords.longitude;
-          setLatitude(lat.toString());
-          setLongitude(lng.toString());
-          setSuccess('Location auto-filled successfully!');
-          setTimeout(() => setSuccess(''), 3000);
-          setGettingLocation(false);
-        },
-        (error) => {
-          setError('Unable to get your location. Please check your browser permissions.');
-          console.error('Geolocation error:', error);
-          setGettingLocation(false);
-        }
-      );
-    } else {
-      setError('Geolocation is not supported by your browser.');
-      setGettingLocation(false);
-    }
-  };
+
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -525,20 +500,6 @@ const Vendors = () => {
                             required
                           />
                         </div>
-                      </div>
-
-                      {/* Get Current Location Button */}
-                      <div>
-                        <button
-                          type="button"
-                          onClick={handleGetLocation}
-                          disabled={gettingLocation}
-                          className="w-full bg-green-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-green-700 transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          <MapPinned size={18} />
-                          {gettingLocation ? 'Getting Location...' : 'Auto-fill Current Location'}
-                        </button>
-                        <p className="text-xs text-gray-500 mt-1">Click to auto-fill latitude & longitude from your current location</p>
                       </div>
 
                       {/* Cafe Images */}
